@@ -1,0 +1,9 @@
+phase=p2_coarse
+run_dir=2026-05-15_17-44-46_p2_coarse
+checkpoint=model_4000
+video_length=1000
+vel_x=0.3
+duration=20
+num_steps=1000
+gpu=cuda:0
+saved_at=2026-05-16T19:38:54+00:00

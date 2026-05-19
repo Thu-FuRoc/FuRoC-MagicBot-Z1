@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="860" viewBox="0 0 1400 860">
+  <rect width="1400" height="860" fill="#f7fafc"/>
+  <text x="700" y="52" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="34" font-weight="700" fill="#0f172a">Locomotion 训练阶段路线图</text>
+  <text x="700" y="86" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="16" fill="#475569">从平地站稳与速度跟踪，逐步过渡到地形与鲁棒性训练</text>
+
+  <rect x="80" y="150" width="220" height="170" rx="20" fill="#dbeafe" stroke="#2563eb" stroke-width="3"/>
+  <text x="190" y="196" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="30" font-weight="700" fill="#1d4ed8">P1</text>
+  <text x="190" y="236" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="20" fill="#1e293b">平地 Bootstrap</text>
+  <text x="190" y="272" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="16" fill="#334155">目标：站稳、基本平衡</text>
+  <text x="190" y="302" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="16" fill="#334155">难点：不倒、约束身体</text>
+
+  <rect x="340" y="150" width="220" height="170" rx="20" fill="#dcfce7" stroke="#16a34a" stroke-width="3"/>
+  <text x="450" y="196" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="30" font-weight="700" fill="#15803d">P2</text>
+  <text x="450" y="236" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="20" fill="#1e293b">平地速度跟踪</text>
+  <text x="450" y="272" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="16" fill="#334155">目标：按命令走、转向、停住</text>
+  <text x="450" y="302" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="16" fill="#334155">基础 checkpoint：P2 Fine</text>
+
+  <rect x="600" y="150" width="220" height="170" rx="20" fill="#fef3c7" stroke="#d97706" stroke-width="4"/>
+  <text x="710" y="196" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="30" font-weight="700" fill="#b45309">P3</text>
+  <text x="710" y="236" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="20" fill="#1e293b">轻地形 + 轻扰动</text>
+  <text x="710" y="272" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="16" fill="#334155">目标：从跟踪过渡到鲁棒性</text>
+  <text x="710" y="302" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="16" fill="#334155">当前正在训练：P3 Coarse</text>
+
+  <rect x="860" y="150" width="220" height="170" rx="20" fill="#fde68a" stroke="#ca8a04" stroke-width="3"/>
+  <text x="970" y="196" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="30" font-weight="700" fill="#a16207">P4</text>
+  <text x="970" y="236" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="20" fill="#1e293b">粗糙地形</text>
+  <text x="970" y="272" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="16" fill="#334155">目标：复杂接触与姿态恢复</text>
+  <text x="970" y="302" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="16" fill="#334155">更强接触与稳定性约束</text>
+
+  <rect x="1120" y="150" width="220" height="170" rx="20" fill="#fee2e2" stroke="#dc2626" stroke-width="3"/>
+  <text x="1230" y="196" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="30" font-weight="700" fill="#b91c1c">P5</text>
+  <text x="1230" y="236" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="20" fill="#1e293b">全地形 + 打磨</text>
+  <text x="1230" y="272" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="16" fill="#334155">目标：综合性能与泛化</text>
+  <text x="1230" y="302" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="16" fill="#334155">最终打磨 stop / balance / terrain</text>
+
+  <line x1="300" y1="235" x2="340" y2="235" stroke="#64748b" stroke-width="6"/>
+  <line x1="560" y1="235" x2="600" y2="235" stroke="#64748b" stroke-width="6"/>
+  <line x1="820" y1="235" x2="860" y2="235" stroke="#64748b" stroke-width="6"/>
+  <line x1="1080" y1="235" x2="1120" y2="235" stroke="#64748b" stroke-width="6"/>
+
+  <rect x="120" y="410" width="1160" height="320" rx="28" fill="#ffffff" stroke="#cbd5e1" stroke-width="2"/>
+  <text x="700" y="458" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="28" font-weight="700" fill="#0f172a">当前关键过渡：P2 Fine -> P3 Coarse</text>
+
+  <rect x="170" y="500" width="310" height="170" rx="18" fill="#ecfccb" stroke="#65a30d" stroke-width="3"/>
+  <text x="325" y="540" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="24" font-weight="700" fill="#3f6212">已有基础</text>
+  <text x="325" y="580" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="18" fill="#334155">平地速度跟踪</text>
+  <text x="325" y="610" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="18" fill="#334155">基本 stop 能力</text>
+  <text x="325" y="640" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="18" fill="#334155">基础姿态稳定</text>
+
+  <rect x="545" y="500" width="310" height="170" rx="18" fill="#fff7ed" stroke="#ea580c" stroke-width="3"/>
+  <text x="700" y="540" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="24" font-weight="700" fill="#c2410c">新增课程</text>
+  <text x="700" y="580" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="18" fill="#334155">standing envs 增加</text>
+  <text x="700" y="610" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="18" fill="#334155">interval force / torque</text>
+  <text x="700" y="640" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="18" fill="#334155">更频繁命令切换与 reset 扰动</text>
+
+  <rect x="920" y="500" width="310" height="170" rx="18" fill="#eff6ff" stroke="#2563eb" stroke-width="3"/>
+  <text x="1075" y="540" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="24" font-weight="700" fill="#1d4ed8">目标能力</text>
+  <text x="1075" y="580" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="18" fill="#334155">速度突然归零后站稳</text>
+  <text x="1075" y="610" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="18" fill="#334155">受扰动后自平衡</text>
+  <text x="1075" y="640" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="18" fill="#334155">进入更复杂 terrain 前稳住策略</text>
+</svg>

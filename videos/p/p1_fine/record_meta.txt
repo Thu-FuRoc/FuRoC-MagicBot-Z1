@@ -1,0 +1,9 @@
+phase=p1_fine
+run_dir=2026-05-06_17-40-13_p1_fine
+checkpoint=model_2800
+video_length=1000
+vel_x=0.3
+duration=20
+num_steps=1000
+gpu=cuda:0
+saved_at=2026-05-16T19:35:44+00:00

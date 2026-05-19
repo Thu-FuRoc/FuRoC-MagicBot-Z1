@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="900" viewBox="0 0 1400 900">
+  <rect width="1400" height="900" fill="#f8fafc"/>
+  <text x="700" y="54" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="34" font-weight="700" fill="#0f172a">Locomotion 鲁棒策略分解图</text>
+  <text x="700" y="88" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="16" fill="#475569">将“停得住”和“抗干扰”拆成不同训练信号，而不是只靠单一 reward</text>
+
+  <rect x="120" y="150" width="520" height="300" rx="24" fill="#ffffff" stroke="#cbd5e1" stroke-width="2"/>
+  <text x="380" y="196" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="28" font-weight="700" fill="#1e293b">A. 速度归零后保持静止</text>
+
+  <rect x="170" y="230" width="180" height="90" rx="16" fill="#dcfce7" stroke="#16a34a" stroke-width="3"/>
+  <text x="260" y="268" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="20" font-weight="700" fill="#166534">standing envs</text>
+  <text x="260" y="300" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="16" fill="#334155">增加零命令样本</text>
+
+  <rect x="390" y="230" width="200" height="90" rx="16" fill="#dbeafe" stroke="#2563eb" stroke-width="3"/>
+  <text x="490" y="268" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="20" font-weight="700" fill="#1d4ed8">resampling time</text>
+  <text x="490" y="300" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="16" fill="#334155">更频繁切换命令</text>
+
+  <rect x="280" y="350" width="200" height="70" rx="16" fill="#fef3c7" stroke="#d97706" stroke-width="3"/>
+  <text x="380" y="392" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="20" font-weight="700" fill="#b45309">stand_still</text>
+  <text x="380" y="414" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="14" fill="#334155">抑制停下后的残余动作</text>
+
+  <rect x="760" y="150" width="520" height="300" rx="24" fill="#ffffff" stroke="#cbd5e1" stroke-width="2"/>
+  <text x="1020" y="196" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="28" font-weight="700" fill="#1e293b">B. 受到扰动后自平衡</text>
+
+  <rect x="810" y="230" width="180" height="90" rx="16" fill="#fee2e2" stroke="#dc2626" stroke-width="3"/>
+  <text x="900" y="268" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="20" font-weight="700" fill="#b91c1c">velocity push</text>
+  <text x="900" y="300" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="16" fill="#334155">速度状态恢复</text>
+
+  <rect x="1040" y="230" width="190" height="90" rx="16" fill="#ffedd5" stroke="#ea580c" stroke-width="3"/>
+  <text x="1135" y="268" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="20" font-weight="700" fill="#c2410c">force / torque</text>
+  <text x="1135" y="300" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="16" fill="#334155">真实外力外矩恢复</text>
+
+  <rect x="925" y="350" width="190" height="70" rx="16" fill="#e0f2fe" stroke="#0284c7" stroke-width="3"/>
+  <text x="1020" y="392" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="20" font-weight="700" fill="#0369a1">reset velocity / pose</text>
+  <text x="1020" y="414" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="14" fill="#334155">从轻度失衡开始恢复</text>
+
+  <rect x="220" y="530" width="960" height="240" rx="28" fill="#ffffff" stroke="#cbd5e1" stroke-width="2"/>
+  <text x="700" y="580" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="28" font-weight="700" fill="#0f172a">为什么两类扰动要同时保留</text>
+
+  <rect x="290" y="620" width="320" height="110" rx="18" fill="#f1f5f9" stroke="#64748b" stroke-width="2"/>
+  <text x="450" y="658" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="22" font-weight="700" fill="#334155">velocity push</text>
+  <text x="450" y="690" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="16" fill="#475569">更偏向“速度误差怎么收回来”</text>
+  <text x="450" y="716" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="16" fill="#475569">相当于状态层面的冲击</text>
+
+  <rect x="790" y="620" width="320" height="110" rx="18" fill="#f1f5f9" stroke="#64748b" stroke-width="2"/>
+  <text x="950" y="658" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="22" font-weight="700" fill="#334155">interval force / torque</text>
+  <text x="950" y="690" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="16" fill="#475569">更偏向“姿态和支撑怎么恢复”</text>
+  <text x="950" y="716" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="16" fill="#475569">相当于物理层面的冲击</text>
+</svg>

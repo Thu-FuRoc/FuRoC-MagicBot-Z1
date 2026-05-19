@@ -1,0 +1,9 @@
+phase=p3_coarse
+run_dir=2026-05-15_21-55-08_p3_coarse
+checkpoint=model_5000
+video_length=1000
+vel_x=0.3
+duration=20
+num_steps=1000
+gpu=cuda:0
+saved_at=2026-05-16T19:45:16+00:00
