@@ -7,6 +7,61 @@
       "obj_token": "PVkowsMgWiyr1rk3WyxcY4XunXf",
       "doc_id": "JRQZdSP0qovf8NxzNxdc8iDhnih",
       "last_pushed": "2026-05-13T21:18:49"
+    },
+    "docs/plans/locomotion_module/README.md": {
+      "obj_token": "W1sYdoRxIo6mYoxRiAac61C9nRT",
+      "doc_id": "W1sYdoRxIo6mYoxRiAac61C9nRT",
+      "last_pushed": "2026-05-20T00:42:32"
+    },
+    "docs/plans/locomotion_module/training_stages.md": {
+      "obj_token": "XNv7d3CG2oPHrNxmEeUcM1eMnhc",
+      "doc_id": "XNv7d3CG2oPHrNxmEeUcM1eMnhc",
+      "last_pushed": "2026-05-20T00:42:32"
+    },
+    "docs/plans/locomotion_module/robustness_strategies.md": {
+      "obj_token": "ACu9dfcT2oikWcxh0Yqca1Xznzh",
+      "doc_id": "ACu9dfcT2oikWcxh0Yqca1Xznzh",
+      "last_pushed": "2026-05-20T00:42:32"
+    },
+    "docs/plans/locomotion_module/metrics_and_tuning.md": {
+      "obj_token": "RCX7dnpmboy4x7x6aLocJOfpnR1",
+      "doc_id": "RCX7dnpmboy4x7x6aLocJOfpnR1",
+      "last_pushed": "2026-05-20T00:42:32"
+    },
+    "docs/plans/locomotion_module/recovery_getup.md": {
+      "obj_token": "OmzodKxTCo0C1gxELcNc9y4Hnte",
+      "doc_id": "OmzodKxTCo0C1gxELcNc9y4Hnte",
+      "last_pushed": "2026-05-20T00:42:32"
+    },
+    "docs/plans/locomotion_module/module_positioning.md": {
+      "obj_token": "HYQXdihIIoACPExZxhjcWdOhnKf",
+      "doc_id": "HYQXdihIIoACPExZxhjcWdOhnKf",
+      "last_pushed": "2026-05-20T00:42:32"
+    },
+    "docs/plans/locomotion_module/training_module_overview.md": {
+      "obj_token": "C6badcD1yook22xEwv0cPM9GnLg",
+      "doc_id": "C6badcD1yook22xEwv0cPM9GnLg",
+      "last_pushed": "2026-05-20T00:42:32"
+    },
+    "docs/plans/locomotion_module/imitation_module.md": {
+      "obj_token": "IPRkdHsrFocNOIxkb5tcDnR5nic",
+      "doc_id": "IPRkdHsrFocNOIxkb5tcDnR5nic",
+      "last_pushed": "2026-05-20T00:42:32"
+    },
+    "docs/plans/locomotion_module/terrain_module_short.md": {
+      "obj_token": "FjTSdK93roxmbFxf5PXcga8EnSg",
+      "doc_id": "FjTSdK93roxmbFxf5PXcga8EnSg",
+      "last_pushed": "2026-05-20T00:42:32"
+    },
+    "docs/plans/locomotion_module/perception_module_short.md": {
+      "obj_token": "ETKIdoIONogyKkx0xMXc0yKVnEc",
+      "doc_id": "ETKIdoIONogyKkx0xMXc0yKVnEc",
+      "last_pushed": "2026-05-20T00:42:32"
+    },
+    "docs/plans/locomotion_module/sim_module_short.md": {
+      "obj_token": "NLKYd2vHoog7qtxJOF7c4D37n3d",
+      "doc_id": "NLKYd2vHoog7qtxJOF7c4D37n3d",
+      "last_pushed": "2026-05-20T00:42:32"
     }
   }
 }

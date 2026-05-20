@@ -524,6 +524,195 @@
       </div>
 
       <p style="margin-top:14px;">这个三层结构是 <strong>Isaac Lab + rsl-rl</strong> 的标准配置，由 <code>RslRlPpoActorCriticCfg</code> 类（<code>isaaclab_rl</code> 包）实现，origin 直接引用。Actor 和 Critic 共享三层隐藏层结构（512→256→128），在最后一层分叉——Actor 输出 12 维关节位置目标（tanh 激活），Critic 输出 1 维 state-value 估计。</p>
+
+      <!-- ========== Detailed MLP Explanation ========== -->
+      <div style="background:#fff; border:1px solid var(--line); border-radius:14px; padding:22px 24px; margin-top:22px;">
+        <h3 style="color:var(--accent); margin-top:0;">3.1 白话详解：这个神经网络到底在干什么？</h3>
+
+        <!-- Basic concept -->
+        <h4 style="margin-top:18px;">什么是 MLP（多层感知机）？</h4>
+        <p>MLP 就像一个<strong>多级筛选器</strong>。想象一条流水线：原材料（传感器数据）从一端进入，经过三道工序（三个隐藏层），每道工序都在对数据进行不同角度的"提炼"和"理解"，最后输出成品（关节动作指令）。</p>
+        <p>每一层里面有若干个<strong>"神经元"</strong>。你可以把每个神经元理解为一个"打分员"——它接收上一步传来的所有信息，给每条信息乘上一个权重（相当于"重要性打分"），全部加起来后，再通过一个<strong>激活函数</strong>决定自己要"输出什么信号"给下一层。</p>
+
+        <!-- Single neuron diagram -->
+        <div style="background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:18px 20px; margin:14px 0;">
+          <h5 style="margin:0 0 10px; color:var(--ink);">单个神经元的工作方式：</h5>
+          <div style="display:flex; align-items:center; justify-content:center; gap:8px; flex-wrap:wrap; padding:8px 0;">
+            <div style="text-align:center;">
+              <div style="font-size:12px; color:var(--dim); margin-bottom:4px;">输入</div>
+              <div style="display:flex; gap:4px;">
+                <span style="background:#e3edf7; border:1px solid #3a6ea5; border-radius:4px; padding:3px 6px; font-size:12px;">x₁</span>
+                <span style="background:#e3edf7; border:1px solid #3a6ea5; border-radius:4px; padding:3px 6px; font-size:12px;">x₂</span>
+                <span style="background:#e3edf7; border:1px solid #3a6ea5; border-radius:4px; padding:3px 6px; font-size:12px;">x₃</span>
+                <span style="color:var(--dim); font-size:12px;">…</span>
+              </div>
+            </div>
+            <div style="color:var(--dim); font-size:18px;">→</div>
+            <div style="text-align:center;">
+              <div style="font-size:12px; color:var(--dim); margin-bottom:4px;">加权求和</div>
+              <div style="background:var(--code); border:1px solid #eadfce; border-radius:6px; padding:6px 10px; font-size:13px; font-family:Consolas,monospace; color:#6f2d00;">Σ wᵢ·xᵢ + b</div>
+            </div>
+            <div style="color:var(--dim); font-size:18px;">→</div>
+            <div style="text-align:center;">
+              <div style="font-size:12px; color:var(--dim); margin-bottom:4px;">激活函数</div>
+              <div style="background:var(--soft); border:1px solid var(--accent); border-radius:6px; padding:6px 10px; font-size:13px; font-weight:700; color:var(--accent);">ELU</div>
+            </div>
+            <div style="color:var(--dim); font-size:18px;">→</div>
+            <div style="text-align:center;">
+              <div style="font-size:12px; color:var(--dim); margin-bottom:4px;">输出</div>
+              <div style="background:#edf7f2; border:1.5px solid var(--accent); border-radius:4px; padding:3px 8px; font-size:12px; font-weight:700; color:var(--accent);">y</div>
+            </div>
+          </div>
+          <p style="font-size:13px; margin:8px 0 0;">其中 <code>wᵢ</code> 是权重（这个神经元对第 i 个输入的"重视程度"），<code>b</code> 是偏置（一个基础调整值）。这些 w 和 b 就是<strong>"训练"要学的东西</strong>——训练前它们是随机数，训练过程中不断调整，让输出越来越合理。</p>
+        </div>
+
+        <!-- Three layers explained -->
+        <h4 style="margin-top:22px;">Z1 的三层分别干什么？</h4>
+        <p>网络从"宽"到"窄"（512→256→128），这是一种经典的<strong>信息压缩</strong>设计。每一层都在做不同层次的特征提取：</p>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px; margin:14px 0;">
+          <div style="background:linear-gradient(135deg,#edf7f2,#fff); border:2px solid var(--accent); border-radius:14px; padding:16px;">
+            <div style="font-size:11px; text-transform:uppercase; letter-spacing:0.06em; color:var(--accent); font-weight:700; margin-bottom:6px;">第一层 · 512 个神经元</div>
+            <div style="font-size:22px; font-weight:700; margin-bottom:4px;">"广泛接收"</div>
+            <div style="font-size:13px; color:var(--dim); line-height:1.5;">
+              512 个神经元，每个都在从 48 维输入中提取一种"低级特征"。这一层很"宽"，因为原始传感器数据杂而多，需要大量神经元来并行捕捉各种基础模式：<br>
+              <span style="color:var(--ink);">→ 关节角度的相对关系、身体倾斜趋势、脚底接触状态……</span>
+            </div>
+          </div>
+          <div style="background:linear-gradient(135deg,#edf7f2,#fff); border:2px solid var(--accent); border-radius:14px; padding:16px;">
+            <div style="font-size:11px; text-transform:uppercase; letter-spacing:0.06em; color:var(--accent); font-weight:700; margin-bottom:6px;">第二层 · 256 个神经元</div>
+            <div style="font-size:22px; font-weight:700; margin-bottom:4px;">"特征组合"</div>
+            <div style="font-size:13px; color:var(--dim); line-height:1.5;">
+              把第一层发现的低级特征组合成更高级的"模式"。神经元数量减半，因为已经滤掉噪声，开始形成有意义的组合：<br>
+              <span style="color:var(--ink);">→ "左前腿抬高 + 身体前倾" → 可能需要加速、"双脚同时触地" → 需要调整步态</span>
+            </div>
+          </div>
+          <div style="background:linear-gradient(135deg,#edf7f2,#fff); border:2px solid var(--accent); border-radius:14px; padding:16px;">
+            <div style="font-size:11px; text-transform:uppercase; letter-spacing:0.06em; color:var(--accent); font-weight:700; margin-bottom:6px;">第三层 · 128 个神经元</div>
+            <div style="font-size:22px; font-weight:700; margin-bottom:4px;">"决策压缩"</div>
+            <div style="font-size:13px; color:var(--dim); line-height:1.5;">
+              再压缩，形成高度抽象的"运动意图"表示。128 个数字浓缩了机器人的完整运动状态理解：<br>
+              <span style="color:var(--ink);">→ 准备好输出具体动作了——12 个关节各自该去什么位置</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Why narrowing -->
+        <div class="note" style="margin-top:8px;">
+          <strong>为什么从宽到窄？</strong> 就像写论文——先大量阅读（512），再归纳要点（256），最后凝练结论（128）。信息在传递中不断被提炼，噪声被滤掉，有用的模式被放大。这种"漏斗"结构是深度学习的经典设计。
+        </div>
+
+        <!-- Activation functions -->
+        <h4 style="margin-top:22px;">什么是"激活函数"？</h4>
+        <p>如果没有激活函数，三层网络本质上等价于一层（因为线性变换的线性变换还是线性的）。激活函数引入<strong>非线性</strong>，让网络能学到复杂的、非直线的映射关系。</p>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin:14px 0;">
+          <div style="background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:16px;">
+            <div style="font-size:14px; font-weight:700; color:var(--accent); margin-bottom:8px;">ELU（隐藏层用）</div>
+            <svg viewBox="0 0 220 100" width="220" style="display:block; margin:0 auto 8px;">
+              <line x1="10" y1="80" x2="210" y2="80" stroke="#ddd" stroke-width="1"/>
+              <line x1="10" y1="80" x2="10" y2="10" stroke="#ddd" stroke-width="1"/>
+              <line x1="10" y1="80" x2="110" y2="80" stroke="#bbb" stroke-width="0.5" stroke-dasharray="4 3"/>
+              <path d="M10,95 Q60,82 110,80 L210,15" stroke="#0b6e4f" stroke-width="2.5" fill="none"/>
+              <text x="215" y="18" font-size="10" fill="#0b6e4f" font-family="Segoe UI">y</text>
+              <text x="110" y="95" font-size="9" fill="#5d6678" font-family="Segoe UI" text-anchor="middle">x=0</text>
+            </svg>
+            <p style="font-size:13px; color:var(--dim); margin:0;">
+              <strong style="color:var(--ink);">特点：</strong>正数区域直接通过（线性），负数区域平滑压缩到一个负值。<br>
+              <strong style="color:var(--ink);">作用：</strong>让神经元能"关闭"不相关的信号（输出接近 0），同时保持梯度流畅，训练更稳定。
+            </p>
+          </div>
+          <div style="background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:16px;">
+            <div style="font-size:14px; font-weight:700; color:var(--warn); margin-bottom:8px;">tanh（Actor 输出层用）</div>
+            <svg viewBox="0 0 220 100" width="220" style="display:block; margin:0 auto 8px;">
+              <line x1="10" y1="50" x2="210" y2="50" stroke="#ddd" stroke-width="1"/>
+              <line x1="10" y1="10" x2="10" y2="90" stroke="#ddd" stroke-width="1"/>
+              <path d="M10,12 Q40,42 80,50 Q140,58 210,88" stroke="#b15c00" stroke-width="2.5" fill="none"/>
+              <line x1="10" y1="15" x2="210" y2="15" stroke="#ccc" stroke-width="0.5" stroke-dasharray="3 3"/>
+              <line x1="10" y1="85" x2="210" y2="85" stroke="#ccc" stroke-width="0.5" stroke-dasharray="3 3"/>
+              <text x="215" y="18" font-size="9" fill="#5d6678" font-family="Segoe UI">+1</text>
+              <text x="215" y="88" font-size="9" fill="#5d6678" font-family="Segoe UI">-1</text>
+              <text x="110" y="65" font-size="9" fill="#5d6678" font-family="Segoe UI" text-anchor="middle">x=0 → y=0</text>
+            </svg>
+            <p style="font-size:13px; color:var(--dim); margin:0;">
+              <strong style="color:var(--ink);">特点：</strong>把任意数字压缩到 [-1, +1] 范围内。<br>
+              <strong style="color:var(--ink);">作用：</strong>关节位置目标有物理上下限，tanh 保证输出永远在合理范围内（-1 到 +1 再映射到实际关节角度）。
+            </p>
+          </div>
+        </div>
+
+        <!-- Actor-Critic explained -->
+        <h4 style="margin-top:22px;">为什么分 Actor 和 Critic 两个分支？</h4>
+        <p>这是 PPO 算法的核心设计，类比一下：</p>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin:14px 0;">
+          <div style="background:linear-gradient(135deg,#edf7f2,#fff); border:2px solid var(--accent); border-radius:14px; padding:18px;">
+            <div style="font-size:16px; font-weight:700; color:var(--accent); margin-bottom:6px;">Actor（演员）</div>
+            <div style="font-size:14px; font-weight:700; color:var(--ink); margin-bottom:6px;">"决定怎么动"</div>
+            <div style="font-size:13px; color:var(--dim); line-height:1.6;">
+              输入当前状态 → 输出 12 个关节的位置目标<br><br>
+              就像一个运动员，根据当前身体状态决定"左膝弯曲 30°、右髋伸展 15° ……"。<br><br>
+              <strong style="color:var(--ink);">输出维度：12</strong>（Z1 有 12 个关节，每个关节一个目标值）
+            </div>
+          </div>
+          <div style="background:linear-gradient(135deg,#ede0f5,#fff); border:2px solid #5b3a8c; border-radius:14px; padding:18px;">
+            <div style="font-size:16px; font-weight:700; color:#5b3a8c; margin-bottom:6px;">Critic（评论家）</div>
+            <div style="font-size:14px; font-weight:700; color:var(--ink); margin-bottom:6px;">"评估当前状态好不好"</div>
+            <div style="font-size:13px; color:var(--dim); line-height:1.6;">
+              输入当前状态 → 输出 1 个分数（state value）<br><br>
+              就像一个教练，看到运动员的姿势后判断"这个状态不错，打 8 分"或"要摔了，打 2 分"。<br><br>
+              <strong style="color:var(--ink);">输出维度：1</strong>（一个标量分数，越高说明当前状态越好）
+            </div>
+          </div>
+        </div>
+        <p>训练时两者配合：<strong>Actor 尝试动作 → Critic 打分 → 根据分数差距调整 Actor 的策略</strong>。Actor 越来越会动，Critic 越来越会评估，两者共同进步。</p>
+
+        <!-- Full data flow -->
+        <h4 style="margin-top:22px;">完整数据流：从传感器到关节动作</h4>
+        <div style="background:#282c34; border-radius:12px; padding:18px 20px; margin:14px 0;">
+          <div style="font-family:Consolas,'Courier New',monospace; font-size:13px; line-height:2; color:#abb2bf;">
+            <span style="color:#e5c07b;">传感器数据 (~48维)</span><br>
+            <span style="color:#5c6370;">  │  ├─ 关节位置 (12)      ─ 每个关节当前弯了多少</span><br>
+            <span style="color:#5c6370;">  │  ├─ 关节速度 (12)      ─ 每个关节转多快</span><br>
+            <span style="color:#5c6370;">  │  ├─ 上一步动作 (12)    ─ 上次命令每个关节去哪</span><br>
+            <span style="color:#5c6370;">  │  ├─ 基座线速度 (3)     ─ 身体前后左右上下移动多快</span><br>
+            <span style="color:#5c6370;">  │  ├─ 基座角速度 (3)     ─ 身体翻滚/俯仰/偏航多快</span><br>
+            <span style="color:#5c6370;">  │  ├─ 投影重力 (3)       ─ 重力方向（判断倾斜）</span><br>
+            <span style="color:#5c6370;">  │  └─ 高度扫描 (187)     ─ 前方地面的高度图</span><br>
+            <span style="color:#56b6c2;">  ▼</span><br>
+            <span style="color:#98c379;">Hidden 1 (512 neurons, ELU)</span>  ← <span style="color:#e5c07b;">广泛提取低级特征</span><br>
+            <span style="color:#56b6c2;">  ▼</span><br>
+            <span style="color:#98c379;">Hidden 2 (256 neurons, ELU)</span>  ← <span style="color:#e5c07b;">组合成中级模式</span><br>
+            <span style="color:#56b6c2;">  ▼</span><br>
+            <span style="color:#98c379;">Hidden 3 (128 neurons, ELU)</span>  ← <span style="color:#e5c07b;">压缩为决策意图</span><br>
+            <span style="color:#56b6c2;">  ▼</span><br>
+            <span style="color:#c678dd;">  ┌─────────────┴─────────────┐</span><br>
+            <span style="color:#e06c75;">  ▼                           ▼</span><br>
+            <span style="color:#98c379;">Actor (tanh)</span>             <span style="color:#98c379;">Critic</span><br>
+            <span style="color:#e5c07b;">12维关节目标</span>              <span style="color:#e5c07b;">1维状态评分</span><br>
+            <span style="color:#5c6370;">范围 [-1,+1]               越高越好</span><br>
+          </div>
+        </div>
+
+        <!-- Parameter count -->
+        <h4 style="margin-top:22px;">这个网络有多大？</h4>
+        <table style="margin-top:8px;">
+          <thead>
+            <tr><th>层</th><th>输入维度</th><th>输出维度</th><th>参数量（权重 + 偏置）</th><th>说明</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Input → Hidden 1</td><td>48</td><td>512</td><td style="font-weight:700;">48×512 + 512 = <strong>25,088</strong></td><td>48 维传感器数据进去，512 维特征出来</td></tr>
+            <tr><td>Hidden 1 → Hidden 2</td><td>512</td><td>256</td><td style="font-weight:700;">512×256 + 256 = <strong>131,328</strong></td><td>压缩一半</td></tr>
+            <tr><td>Hidden 2 → Hidden 3</td><td>256</td><td>128</td><td style="font-weight:700;">256×128 + 128 = <strong>32,896</strong></td><td>再压缩一半</td></tr>
+            <tr><td>Hidden 3 → Actor</td><td>128</td><td>12</td><td style="font-weight:700;">128×12 + 12 = <strong>1,548</strong></td><td>输出 12 个关节目标</td></tr>
+            <tr><td>Hidden 3 → Critic</td><td>128</td><td>1</td><td style="font-weight:700;">128×1 + 1 = <strong>129</strong></td><td>输出 1 个状态评分</td></tr>
+            <tr style="background:#f6efe4;"><td colspan="3" style="font-weight:700;">总计</td><td style="font-weight:700; color:var(--accent); font-size:16px;">~191,000</td><td>约 0.76 MB（非常轻量）</td></tr>
+          </tbody>
+        </table>
+        <p style="font-size:13px; color:var(--dim); margin-top:8px;">
+          对比参考：GPT-2 有 1.5 亿参数，GPT-4 有上万亿参数。Z1 的网络只有 <strong>~19 万参数</strong>，非常小巧——因为四足 locomotion 的决策空间远比语言理解简单，不需要大模型。
+          这也是为什么 checkpoint 文件只有 6.8 MB（包含了 Actor、Critic、优化器状态等全部内容），JIT 导出的纯 Actor 仅 1.2 MB。
+        </p>
+      </div>
     </section>
 
     <!-- Q4: What's ours -->
