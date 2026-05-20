@@ -115,6 +115,12 @@ cd FuRoC-MagicBot-Z1
 # Symlink into Magicbot_Z1/IsaacLab/
 ```
 
+### Runtime Versions (Actual on RTX)
+
+- Isaac Sim: `4.5.0.0`
+- IsaacLab: `0.47.2`
+- PhysX: bundled with Isaac Sim `4.5.0.0` runtime
+
 ### 3. Train
 
 ```bash

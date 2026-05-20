@@ -1,7 +1,7 @@
 {
   "source": "5-phase-pipeline",
   "plan": "z1_5phase_plan.yaml",
-  "updated_at": "2026-05-18T19:41:24+00:00",
+  "updated_at": "2026-05-20T06:03:18+00:00",
   "phases": [
     {
       "phase_id": "p1",
@@ -45,7 +45,7 @@
     {
       "phase_id": "p2",
       "phase_name": "Flat — Velocity Tracking",
-      "status": "IN_PROGRESS",
+      "status": "COMPLETE",
       "sub_phases": [
         {
           "id": "p2_coarse",
@@ -59,35 +59,30 @@
         {
           "id": "p2_fine",
           "run_dir": "2026-05-18_19-35-30_p2_fine",
-          "best_model": "p2_fine_model_3600.pt",
+          "best_model": "model_3600.pt",
           "best_iteration": 3600,
-          "best_reward": null,
-          "peak_reward": null,
-          "status": "RUNNING"
+          "best_reward": 38.29176254272461,
+          "peak_reward": 38.29176254272461,
+          "status": "COMPLETE",
+          "completed_at": "2026-05-18T21:30:03.969221"
         }
       ],
-      "phase_best": "p2_fine/model_4800.pt",
-      "phase_best_reward": 38.21
+      "phase_best": "p2_fine/model_3600.pt",
+      "phase_best_reward": 38.29176254272461
     },
     {
       "phase_id": "p3",
       "phase_name": "Gentle Terrain",
-      "status": "COMPLETE",
+      "status": "IN_PROGRESS",
       "sub_phases": [
         {
           "id": "p3_coarse",
-          "run_dir": "2026-05-15_21-55-08_p3_coarse",
-          "best_model": "model_5000.pt",
-          "best_iteration": 5000,
-          "best_reward": 44.52,
-          "peak_reward": 44.52,
-          "status": "COMPLETE",
-          "completed_at": "2026-05-16T00:24:21",
-          "local_models": {
-            "checkpoint": "models/p/p3_coarse/p3_coarse_model_5000.pt",
-            "jit_policy": "models/p/p3_coarse/p3_coarse_policy_m5000.pt"
-          },
-          "video": "videos/p/p3_coarse/20260516_1434/"
+          "run_dir": "2026-05-20_06-01-49_p3_coarse",
+          "best_model": "model_3600.pt",
+          "best_iteration": 3600,
+          "best_reward": 38.29176254272461,
+          "peak_reward": 38.29176254272461,
+          "status": "RUNNING"
         },
         {
           "id": "p3_fine",
@@ -105,8 +100,8 @@
           "video": "videos/p/p3_fine/20260516_2120/"
         }
       ],
-      "phase_best": "p3_coarse/model_5000.pt",
-      "phase_best_reward": 44.52
+      "phase_best": "p3_coarse/model_3600.pt",
+      "phase_best_reward": 38.29176254272461
     },
     {
       "phase_id": "p4",
