@@ -38,6 +38,7 @@ parser.add_argument("--vel_yaw", type=float, default=None, help="Override yaw an
 parser.add_argument("--no_vel_limit", action="store_true", default=False,
                     help="Disable velocity limit clipping (set limit_ranges = ranges).")
 AppLauncher.add_app_launcher_args(parser)
+parser.add_argument("--disable_fabric", action="store_true", default=False, help="Disable fabric and use USD I/O operations.")
 args_cli = parser.parse_args()
 
 # Validate: exactly one of --checkpoint or --policy must be provided
@@ -208,7 +209,37 @@ def main():
     try:
         # === Env config (play mode) ===
         env_cfg = RobotPlayEnvCfg()
+
+        # --- Fix headless rendering: post-process USD to clear instancing ---
+        # URDF converter's ImportConfig has no set_make_instanceable() (unlike MJCF).
+        # Instead, we monkey-patch UrdfConverter.__init__ to modify the generated USD
+        # file AFTER conversion but BEFORE the spawner loads it into the stage.
+        import isaaclab.sim.converters.urdf_converter as _uc
+        _orig_uc_init = _uc.UrdfConverter.__init__
+        def _patched_uc_init(self, cfg):
+            _orig_uc_init(self, cfg)
+            # Post-process: open the generated USD and clear all instanceable attrs
+            try:
+                from pxr import Usd as _Usd
+                usd_path = str(self.usd_path)
+                if os.path.exists(usd_path):
+                    stage = _Usd.Stage.Open(usd_path)
+                    count = 0
+                    for prim in stage.Traverse():
+                        if prim.IsInstanceable():
+                            prim.SetInstanceable(False)
+                            count += 1
+                    if count > 0:
+                        stage.GetRootLayer().Save()
+                        print(f"[INFO] USD post-process: cleared instanceable on {count} prims", flush=True)
+            except Exception as e:
+                print(f"[WARN] USD post-process failed: {e}", flush=True)
+        _uc.UrdfConverter.__init__ = _patched_uc_init
+
+        env_cfg.scene.robot.spawn.force_usd_conversion = True
         env_cfg.scene.num_envs = args_cli.num_envs
+        if args_cli.disable_fabric:
+            env_cfg.sim.use_fabric = False
         if args_cli.seed is not None:
             env_cfg.seed = args_cli.seed
 
