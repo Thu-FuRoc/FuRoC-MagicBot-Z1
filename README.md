@@ -60,10 +60,10 @@ RL locomotion training pipeline for **MagicBot Z1 12DOF bipedal robot**, built o
 
 | Phase | Policy | Path | Description |
 |-------|--------|------|-------------|
-| P1 Coarse | Standing | `models/p/p1_coarse/p1_coarse_policy.pt` | Bootstraps standing from random init |
-| P1 Fine | Standing | `models/p/p1_fine/p1_fine_policy.pt` | Fine-tuned stable standing on flat terrain |
-| P2 Coarse | Locomotion | `models/p/p2_coarse/p2_coarse_policy.pt` | Initial velocity tracking on flat terrain |
-| P2 Fine | *Retraining* | — | Retraining with statistical joint_mirror (EMA + per-joint weights) |
+| P1 Coarse | Standing | `models/B_custom_curriculum/p1_coarse/p1_coarse_policy.pt` | Bootstraps standing from random init |
+| P1 Fine | Standing | `models/B_custom_curriculum/p1_fine/p1_fine_policy.pt` | Fine-tuned stable standing on flat terrain |
+| P2 Coarse | Locomotion | `models/B_custom_curriculum/p2_coarse/p2_coarse_policy.pt` | Initial velocity tracking on flat terrain |
+| P2 Fine | *Retraining* | `models/B_custom_curriculum/p2_fine/p2_fine_policy.pt` | Retraining with statistical joint_mirror (EMA + per-joint weights) |
 
 ## 5-Phase Automated Pipeline
 
@@ -82,19 +82,28 @@ Each sub-phase: config generation → distributed PPO training → overfitting d
 ## Directory Structure
 
 ```
-Magicbot_Z1/
-├── magiclab_rl_lab/          # RL framework (fork, z1-custom branch)
-├── magicbot-z1_description/  # URDF/Mesh (official)
-├── magicbot-z1_sdk/          # Robot SDK (official)
-├── configs/                  # Custom env configs & scripts
-├── docs/
-│   └── github_readme/        # Demo GIFs, plots & SVG for README
-├── models/
-│   └── p/                    # Pipeline policy checkpoints (Git LFS)
-│       ├── p1_coarse/  p1_fine/
-│       ├── p2_coarse/  p2_fine/
-├── videos/                   # Training demo videos (Git LFS)
-├── IsaacLab/                 # Isaac Lab framework (.gitignored)
+FuRoC-MagicBot-Z1/
+├── config/                   # Unified configs (YAML/JSON, no scripts)
+│   ├── pipeline/             # Training plan YAMLs (z1_5phase_plan.yaml)
+│   └── video/                # Video target JSON manifests
+├── data/                     # Local-only large datasets (Git-ignored)
+│   └── training_logs/        # Raw CSV logs from training runs
+├── docs/                     # Documentation directory (Clean Markdown files)
+│   ├── github_readme/        # Demo GIFs, plots & SVG for README
+│   ├── guides/               # Sim2Sim, logging & user manuals
+│   ├── manual_commands/      # Operation & task cheat sheets
+│   ├── plans/                # Retraining plans & manipulation roadmaps
+│   └── tracking/             # Damping strategy & terrain loading tracking
+├── magicbot-z1_description/  # URDF/Mesh (Git submodule)
+├── magicbot-z1_sdk/          # Robot SDK (Git submodule)
+├── magiclab_rl_lab/          # RL framework (Git submodule, fork)
+├── models/                   # Model weight checkpoints (Git LFS)
+│   ├── A_legged_gym/         # Standard legged gym model baselines
+│   └── B_custom_curriculum/  # Custom phase progression checkpoints
+├── ops/                      # DevOps & infrastructure utilities
+│   └── deployment/           # deploy_explicit_pd.sh deployment script
+├── scripts/                  # Utility scripts (Symmetry plotting, video remote)
+│   └── z1_orchestrator.slurm # Slurm cluster job configuration
 └── README.md
 ```
 
@@ -151,9 +160,9 @@ python deploy/robot_deploy.py
 
 ## Documentation
 
-- [Training Plan](docs/Z1_Locomotion_Training_Plan.md)
-- [Training Analysis](docs/Z1_Training_Analysis.md)
-- [TODO & Naming Convention](docs/TODO.md)
+- [Sim2Sim Guide](docs/guides/Sim2Sim_Guide.md)
+- [Logging Architecture](docs/guides/Logging_Architecture.md)
+- [Damping Strategy Comparison](docs/tracking/z1_damping_strategy_comparison.md)
 - [Framework Guide](docs/FRAMEWORK.md)
 
 ## Hardware
