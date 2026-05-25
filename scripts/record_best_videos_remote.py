@@ -18,7 +18,7 @@ def run(cmd: list[str]) -> None:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Sync batch recording scripts to RTX, run recording, and SCP videos back.")
-    parser.add_argument("--manifest", default="configs/video_record_targets_current.json", help="Local manifest path.")
+    parser.add_argument("--manifest", default="config/video/video_record_targets_current.json", help="Local manifest path.")
     parser.add_argument("--video-length", type=int, default=1000, help="Video length in simulation steps.")
     parser.add_argument(
         "--command-resample-time",
