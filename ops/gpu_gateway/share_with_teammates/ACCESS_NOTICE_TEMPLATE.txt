@@ -1,5 +1,0 @@
-﻿[GPU-Train Gateway Access Notice]
-URL: https://interested-dishes-leadership-flow.trycloudflare.com
-Username: <provided by admin>
-Password: <provided by admin>
-Use open_gateway.bat for one-click access

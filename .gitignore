@@ -64,8 +64,18 @@ magicbot-gen1_description/
 magic-bot-mimic/
 magicbot-mimic/
 
-# Gateway (internal tool, not for repo)
-ops/gpu_gateway/
+# Local datasets
+data/
+
+# LaTeX compiler files
+*.toc
+*.aux
+*.log
+*.out
+*.nav
+*.snm
+*.synctex.gz
 
 # Temp test files
 tmp_*
+
