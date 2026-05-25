@@ -64,14 +64,8 @@ magicbot-gen1_description/
 magic-bot-mimic/
 magicbot-mimic/
 
-# Secrets - never push credentials
-ops/gpu_gateway/users.json
-ops/gpu_gateway/fixed_tunnel.env
-ops/gpu_gateway/data/
-ops/gpu_gateway/.venv/
-ops/gpu_gateway/teammate_gateway_pack.zip
-ops/gpu_gateway/cloudflared.exe
-ops/gpu_gateway/*.db
+# Gateway (internal tool, not for repo)
+ops/gpu_gateway/
 
 # Temp test files
 tmp_*

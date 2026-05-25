@@ -1,0 +1,80 @@
+{
+  "source": "4-phase-legged-gym",
+  "plan": "docs/Z1_New_Training_Plan_v2.md",
+  "updated_at": "2026-05-23T00:00:00+08:00",
+  "phases": [
+    {
+      "phase_id": "p1",
+      "phase_name": "Flat - Stand and Balance",
+      "status": "COMPLETE",
+      "run_dir": "2026-05-21_05-34-18_p1",
+      "best_model": "model_3700.pt",
+      "best_iteration": 3700,
+      "best_reward": 7.23,
+      "peak_reward": 7.98,
+      "peak_reward_iter": 3740,
+      "latest_iteration": 4620,
+      "latest_reward": 6.527942180633545,
+      "training_status": "HEALTHY",
+      "local_models": {
+        "checkpoint": "models/A_legged_gym/p1/p1_model_3700.pt",
+        "jit_policy": "models/A_legged_gym/p1/p1_policy.pt"
+      },
+      "video": "videos/A_legged_gym/20260523_rerecord/p1_isaaclab_model3700_eye4m4_3.mp4"
+    },
+    {
+      "phase_id": "p2",
+      "phase_name": "Flat - Velocity Tracking",
+      "status": "OVERFITTING",
+      "run_dir": "2026-05-21_08-15-14_p2",
+      "best_model": "model_8300.pt",
+      "best_iteration": 8300,
+      "best_reward": 28.09,
+      "peak_reward": 29.09,
+      "peak_reward_iter": 6630,
+      "latest_iteration": 11675,
+      "latest_reward": 23.083925247192383,
+      "training_status": "OVERFITTING",
+      "local_models": {
+        "checkpoint": "models/A_legged_gym/p2/p2_model_8300.pt",
+        "jit_policy": "models/A_legged_gym/p2/p2_policy.pt"
+      },
+      "video": "videos/A_legged_gym/20260523_rerecord/p2_isaaclab_model8300_eye4m4_3.mp4"
+    },
+    {
+      "phase_id": "p3",
+      "phase_name": "Gentle Terrain",
+      "status": "OVERFITTING",
+      "run_dir": "2026-05-21_12-52-29_p3",
+      "best_model": "model_7900.pt",
+      "best_iteration": 7900,
+      "best_reward": 32.52,
+      "peak_reward": 35.75,
+      "peak_reward_iter": 8020,
+      "latest_iteration": 10479,
+      "latest_reward": -8.887858390808105,
+      "training_status": "OVERFITTING",
+      "local_models": {
+        "checkpoint": "models/A_legged_gym/p3/p3_model_7900.pt",
+        "jit_policy": "models/A_legged_gym/p3/p3_policy.pt"
+      },
+      "video": "videos/A_legged_gym/20260523_rerecord/p3_isaaclab_model7900_eye4m4_3.mp4"
+    },
+    {
+      "phase_id": "p4",
+      "phase_name": "Rough Terrain",
+      "status": "PLANNED",
+      "run_dir": null,
+      "best_model": null,
+      "best_iteration": null,
+      "best_reward": null,
+      "peak_reward": null,
+      "peak_reward_iter": null,
+      "latest_iteration": null,
+      "latest_reward": null,
+      "training_status": "PLANNED",
+      "local_models": null,
+      "video": null
+    }
+  ]
+}

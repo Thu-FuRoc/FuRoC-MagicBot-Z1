@@ -1,0 +1,31 @@
+{
+  "description": "A_legged_gym batch recording targets using current validated static camera.",
+  "local_output_dir": "videos/A_legged_gym/20260523_rerecord",
+  "remote_output_dir": "videos/A_legged_gym/20260523_rerecord",
+  "targets": [
+    {
+      "id": "legged_gym_p1_best",
+      "label": "Legged Gym P1 Best",
+      "group": "A_legged_gym",
+      "run_dir": "2026-05-21_05-34-18_p1",
+      "checkpoint": "model_3700.pt",
+      "output_name": "p1_isaaclab_model3700_eye4m4_3.mp4"
+    },
+    {
+      "id": "legged_gym_p2_best",
+      "label": "Legged Gym P2 Best",
+      "group": "A_legged_gym",
+      "run_dir": "2026-05-21_08-15-14_p2",
+      "checkpoint": "model_8300.pt",
+      "output_name": "p2_isaaclab_model8300_eye4m4_3.mp4"
+    },
+    {
+      "id": "legged_gym_p3_best",
+      "label": "Legged Gym P3 Best",
+      "group": "A_legged_gym",
+      "run_dir": "2026-05-21_12-52-29_p3",
+      "checkpoint": "model_7900.pt",
+      "output_name": "p3_isaaclab_model7900_eye4m4_3.mp4"
+    }
+  ]
+}

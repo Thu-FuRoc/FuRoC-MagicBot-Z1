@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>gpu-train Skill Framework</title>
+  <style>
+    :root {
+      --bg: #f4efe6;
+      --panel: #fffdf9;
+      --ink: #1d2433;
+      --muted: #5d667a;
+      --line: #d8cfbf;
+      --accent: #0c6a52;
+      --warn: #9a6100;
+      --soft: #eef7f3;
+      --soft-warn: #fff5e6;
+      --code: #f5f0e7;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: linear-gradient(180deg, #eadfce 0%, var(--bg) 220px);
+      color: var(--ink);
+      line-height: 1.65;
+    }
+    .wrap { max-width: 1260px; margin: 0 auto; padding: 28px 22px 56px; }
+    .hero, .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 18px; box-shadow: 0 12px 30px rgba(45,35,20,.06); }
+    .hero { padding: 28px; margin-bottom: 18px; }
+    .panel { padding: 22px; margin-bottom: 18px; }
+    h1,h2,h3 { margin: 0 0 12px; line-height: 1.2; }
+    h1 { font-size: 34px; }
+    h2 { font-size: 24px; }
+    p { margin: 0 0 12px; color: var(--muted); }
+    .chips { display:flex; flex-wrap:wrap; gap:10px; margin:16px 0 6px; }
+    .chip { border:1px solid var(--line); background:#faf6ef; border-radius:999px; padding:7px 12px; font-size:13px; font-weight:700; }
+    .chip.ok { background: var(--soft); color: var(--accent); border-color:#cce4da; }
+    .chip.warn { background: var(--soft-warn); color: var(--warn); border-color:#edd8ae; }
+    table { width:100%; border-collapse:collapse; margin-top:12px; background:#fff; border:1px solid var(--line); border-radius:14px; overflow:hidden; }
+    th,td { padding:13px 14px; border-bottom:1px solid #e8dece; text-align:left; vertical-align:top; }
+    th { background:#f7f2ea; color:var(--muted); font-size:13px; text-transform:uppercase; letter-spacing:.06em; }
+    tr:last-child td { border-bottom:none; }
+    code { font-family:Consolas,"SFMono-Regular",monospace; background:var(--code); border:1px solid #eadfcd; border-radius:6px; padding:2px 6px; color:#593015; }
+    pre { margin:0; padding:16px; background:#121926; color:#edf2ff; border-radius:14px; overflow-x:auto; line-height:1.5; }
+    .note { padding:14px 16px; border-left:4px solid var(--accent); border-radius:12px; background:#f5fbf8; }
+    ul { margin:10px 0 0 18px; color:var(--muted); }
+    li { margin:6px 0; }
+    a { color:#0f5da5; text-decoration:none; }
+    a:hover { text-decoration:underline; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <h1><code>$gpu-train</code> Skill Framework</h1>
+      <p>这个 skill 不是训练器本身，而是“远程 RTX 训练管理的操作抽象层”。它把 SSH、VPN、Slurm、GPU 查询、日志 tail、orchestrator resume、远程录视频等动作统一成一组稳定意图。</p>
+      <div class="chips">
+        <span class="chip ok">核心定位：远程训练运维代理</span>
+        <span class="chip ok">主目标：看状态、读日志、管 orchestrator、拉视频</span>
+        <span class="chip warn">强依赖 VPN / SSH / 远端 IsaacLab 环境</span>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>1. Skill 的输入和真源</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>层</th>
+            <th>文件</th>
+            <th>作用</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Skill 规范</td>
+            <td><code>C:\Users\20174\.codex\skills\gpu-train\SKILL.md</code></td>
+            <td>定义该 skill 该做什么、什么时候做、默认操作规则是什么。</td>
+          </tr>
+          <tr>
+            <td>平台真源</td>
+            <td><code>references/platforms.md</code></td>
+            <td>定义 SSH host、conda env、项目根目录、日志路径、录像命令。</td>
+          </tr>
+          <tr>
+            <td>补充文档</td>
+            <td><code>RTX_Server_Guide.html</code>、<code>GPU_Train_Command_Reference.html</code>、<code>Z1_Orchestrator_Guide.html</code></td>
+            <td>把路径和命令解释成操作手册。</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="panel">
+      <h2>2. Skill 实际管理的对象</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>对象</th>
+            <th>典型问题</th>
+            <th>它会调用什么</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>RTX 远端进程</td>
+            <td>训练还活着吗？PID 是什么？</td>
+            <td><code>ssh ... ps aux</code></td>
+          </tr>
+          <tr>
+            <td>远端日志</td>
+            <td>当前 reward、速度、ETA、loss 怎么样？</td>
+            <td><code>tail -30</code>、扫描 <code>train_*.log</code></td>
+          </tr>
+          <tr>
+            <td>GPU</td>
+            <td>哪张卡空闲？谁在占？是不是 Slurm 绕过？</td>
+            <td><code>nvidia-smi</code>、Slurm 队列、process owner 过滤</td>
+          </tr>
+          <tr>
+            <td>orchestrator</td>
+            <td>当前 phase 到哪了？能不能 resume？</td>
+            <td>检查 <code>orchestrator_state.json</code>、调用 Slurm wrapper</td>
+          </tr>
+          <tr>
+            <td>录像产物</td>
+            <td>某个 checkpoint 的 IsaacLab / MuJoCo 视频如何批量录制并取回？</td>
+            <td>调用远端录制命令，再 <code>scp</code> 回本地</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="panel">
+      <h2>3. Skill 的标准工作流</h2>
+      <pre>用户意图
+  -> 识别是状态 / GPU / 日志 / orchestrator / 录像 / 故障分析
+  -> 读取 platforms.md 里的路径和命令
+  -> 做 SSH 连通性测试
+  -> 如果 SSH 失败：自动启动 iNode VPN，3 秒一重试，最多 10 次
+  -> 执行远端查询或远端动作
+  -> 用“当前状态 -> 指标 -> 健康判断 -> 下一步”格式返回</pre>
+      <div class="note">
+        这个 skill 的本质是把“你脑子里的远程训练排障流程”固定成一套标准操作序列，避免每次都重新拼 SSH 和路径。
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>4. 命令家族梳理</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>家族</th>
+            <th>意图</th>
+            <th>典型输出</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Connectivity</td>
+            <td>确认能否连上 RTX</td>
+            <td>SSH 是否成功，VPN 是否需要拉起</td>
+          </tr>
+          <tr>
+            <td>Training Status</td>
+            <td>查训练是否存活</td>
+            <td>进程、PID、run 名、活跃日志</td>
+          </tr>
+          <tr>
+            <td>Tail Logs</td>
+            <td>看最后 30 行，估计训练健康</td>
+            <td>iteration、reward、loss、speed、ETA、中文健康判断</td>
+          </tr>
+          <tr>
+            <td>GPU Usage</td>
+            <td>查每张卡是否空闲</td>
+            <td>利用率、显存、哪个用户在用、推荐 <code>cuda:&lt;id&gt;</code></td>
+          </tr>
+          <tr>
+            <td>My CUDA</td>
+            <td>只看当前用户自己的 GPU 进程</td>
+            <td>用户级占卡信息</td>
+          </tr>
+          <tr>
+            <td>Slurm Review</td>
+            <td>看队列与 bypass 违规</td>
+            <td>job、GPU、PID、user、命令</td>
+          </tr>
+          <tr>
+            <td>Orchestrator</td>
+            <td>start / resume / stop / from 某 phase</td>
+            <td>状态文件、当前 phase、作业提交结果</td>
+          </tr>
+          <tr>
+            <td>Video / Artifact</td>
+            <td>为某 checkpoint 录视频、导出并拉回</td>
+            <td>本地输出路径、成功与否</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="panel">
+      <h2>5. 与 Z1 项目的绑定点</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>绑定项</th>
+            <th>固定值</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>SSH Host</td>
+            <td><code>phh@192.168.120.155</code></td>
+          </tr>
+          <tr>
+            <td>VPN</td>
+            <td><code>iNode Client</code></td>
+          </tr>
+          <tr>
+            <td>Conda Env</td>
+            <td><code>isaaclab</code></td>
+          </tr>
+          <tr>
+            <td>远端项目根</td>
+            <td><code>~/magiclab_rl_lab</code></td>
+          </tr>
+          <tr>
+            <td>Z1 checkpoint 根</td>
+            <td><code>~/magiclab_rl_lab/logs/rsl_rl/magiclab_z1_12dof_velocity/&lt;run_dir&gt;</code></td>
+          </tr>
+          <tr>
+            <td>orchestrator state</td>
+            <td><code>~/magiclab_rl_lab/orchestrator_state.json</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="panel">
+      <h2>6. Orchestrator 子框架</h2>
+      <pre>/gpu-train --orchestrator --start
+  -> bash D:/Desktop_Files/GPU-Train/RTX6000/rtx_submit_orchestrator_train.sh
+
+/gpu-train --orchestrator --start --from p3_fine
+  -> bash .../rtx_submit_orchestrator_train.sh --from p3_fine
+
+/gpu-train --orchestrator --resume
+  -> 先检查 ~/magiclab_rl_lab/orchestrator_state.json
+  -> 再 bash .../rtx_submit_orchestrator_train.sh --resume</pre>
+      <ul>
+        <li>这个 skill 默认更偏向 Slurm wrapper，而不是直接在远端跑 <code>nohup python ... phase_orchestrator.py</code>。</li>
+        <li>只有用户明确要求 manual direct launch，或者 Slurm 不可用时，才应偏向手动 nohup。</li>
+        <li>resume 是一个强约束动作，没有 state file 就不该假装能 resume。</li>
+      </ul>
+    </section>
+
+    <section class="panel">
+      <h2>7. Skill 的边界</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>会做</th>
+            <th>不会做</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>自动拉 VPN、自动重试 SSH、自动读日志、自动判断 GPU 是否空闲</td>
+            <td>未经确认直接 kill 训练、kill orchestrator 或停别人的作业</td>
+          </tr>
+          <tr>
+            <td>总结状态、给出结论和下一步建议</td>
+            <td>把 SSH 原始长输出原封不动扔给用户</td>
+          </tr>
+          <tr>
+            <td>按固定路径找 Z1 日志、视频、checkpoint</td>
+            <td>擅自猜测不存在的 run 或跳过 state preflight</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+  </div>
+</body>
+</html>

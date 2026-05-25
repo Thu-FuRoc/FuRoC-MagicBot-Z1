@@ -438,8 +438,8 @@
             <div class="step-num" style="background: var(--green);">4</div>
             <div class="step-card">
               <h3>录制 Isaac Lab 视频</h3>
-              <p>通过 <code>play_z1_video.py</code> 在 RTX 侧 headless 录制 Isaac Lab 视频。默认改为 <code>video_length=1000</code>，显卡不再写死 <code>cuda:0</code>，而是自动选一张符合 <code>--idle</code> 规则的空闲卡；同时增加 <code>timeout 600s</code>，避免异常 run 一直挂住。</p>
-              <div class="cmd">timeout 600s python -u scripts/rsl_rl/play_z1_video.py --checkpoint &lt;CKPT_PATH&gt; --headless --video --video_length 1000 --num_envs 1 --device cuda:&lt;IDLE_GPU&gt;</div>
+              <p>通过 <code>play_z1_video.py</code> 在 RTX 侧 headless 录制 Isaac Lab 视频。默认改为 <code>video_length=1000</code>，显卡不再写死 <code>cuda:0</code>，而是自动选一张符合 <code>--idle</code> 规则的空闲卡；同时增加 <code>timeout 600s</code>，避免异常 run 一直挂住。必须加 <code>--disable_fabric</code>，否则 PhysX Fabric 插件会因版本不兼容导致启动失败。</p>
+              <div class="cmd">timeout 600s python -u scripts/rsl_rl/play_z1_video.py --checkpoint &lt;CKPT_PATH&gt; --headless --video --video_length 1000 --num_envs 1 --disable_fabric --device cuda:&lt;IDLE_GPU&gt;</div>
               <div class="badge-row">
                 <span class="badge auto">脚本自动</span>
                 <span class="badge auto">GPU 自动按 idle 规则选择</span>
@@ -452,8 +452,8 @@
             <div class="step-num" style="background: var(--amber);">5</div>
             <div class="step-card">
               <h3>等待 Kit 清理后再录 MuJoCo</h3>
-              <p>Isaac 录制结束后，脚本会先等待 Kit 相关进程退出，避免 KVDB lock 一类冲突；等待上限是 <code>60s</code>，超时后会强制清理残留 Kit。之后再调用 <code>sim2sim/mujoco_manual.py</code> 远端录制 MuJoCo，默认参数是 <code>duration=20</code>、<code>vel_x=0.3</code>，按 50Hz 折算为 <code>num_steps=1000</code>，并增加 <code>timeout 300s</code>。</p>
-              <div class="cmd">wait_for_kit_cleanup()  # up to 60s, force-kill stale Kit if needed<br>timeout 300s python -u sim2sim/mujoco_manual.py --mjcf ~/magicbot-z1_description/mjcf/MAGICBOTZ1.xml --policy &lt;POLICY_PATH&gt; --deploy_cfg &lt;DEPLOY_CFG_PATH&gt; --record /tmp/&lt;RUN&gt;_&lt;CKPT&gt;_mujoco.mp4 --num_steps 1000 --vel_x 0.3</div>
+              <p>Isaac 录制结束后，脚本会先等待 Kit 相关进程退出，避免 KVDB lock 一类冲突；等待上限是 <code>60s</code>，超时后会强制清理残留 Kit。之后再调用 <code>sim2sim/mujoco_manual.py</code> 远端录制 MuJoCo，默认参数是 <code>duration=20</code>、<code>vel_x</code> 取 env 配置的速度范围中值（<code>lin_vel_x=[0.0, 1.0]</code> → <code>0.5</code>），按 50Hz 折算为 <code>num_steps=1000</code>，并增加 <code>timeout 300s</code>。</p>
+              <div class="cmd">wait_for_kit_cleanup()  # up to 60s, force-kill stale Kit if needed<br>timeout 300s python -u sim2sim/mujoco_manual.py --mjcf ~/magicbot-z1_description/mjcf/MAGICBOTZ1.xml --policy &lt;POLICY_PATH&gt; --deploy_cfg &lt;DEPLOY_CFG_PATH&gt; --record /tmp/&lt;RUN&gt;_&lt;CKPT&gt;_mujoco.mp4 --num_steps 1000 --vel_x 0.5</div>
               <div class="badge-row">
                 <span class="badge auto">脚本自动</span>
                 <span class="badge auto">Kit cleanup 60s</span>

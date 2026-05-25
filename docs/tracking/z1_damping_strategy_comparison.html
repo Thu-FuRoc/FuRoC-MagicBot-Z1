@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Z1 Damping Strategy Comparison</title>
+  <style>
+    :root {
+      --bg: #f3efe6;
+      --panel: #fffdf8;
+      --ink: #1d2433;
+      --dim: #5b667a;
+      --line: #d8cfbf;
+      --accent: #0f6a55;
+      --warn: #a76500;
+      --bad: #9d1c1c;
+      --soft: #edf7f3;
+      --soft-warn: #fff4e2;
+      --soft-bad: #fdecec;
+      --code: #f6f1e8;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: linear-gradient(180deg, #ebe3d3 0%, var(--bg) 220px);
+      color: var(--ink);
+      line-height: 1.6;
+    }
+
+    .wrap {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 28px 22px 60px;
+    }
+
+    .hero, .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: 0 12px 30px rgba(56, 46, 23, 0.06);
+    }
+
+    .hero {
+      padding: 28px;
+      margin-bottom: 18px;
+    }
+
+    .panel {
+      padding: 22px;
+      margin-bottom: 18px;
+    }
+
+    h1, h2, h3 {
+      margin: 0 0 12px;
+      line-height: 1.2;
+    }
+
+    h1 {
+      font-size: 34px;
+      letter-spacing: -0.03em;
+    }
+
+    h2 {
+      font-size: 24px;
+      margin-top: 4px;
+    }
+
+    p {
+      margin: 0 0 12px;
+      color: var(--dim);
+    }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 16px 0 6px;
+    }
+
+    .chip {
+      padding: 7px 12px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 600;
+      border: 1px solid var(--line);
+      background: #faf6ee;
+      color: var(--ink);
+    }
+
+    .chip.ok { background: var(--soft); color: var(--accent); border-color: #cce6dc; }
+    .chip.warn { background: var(--soft-warn); color: var(--warn); border-color: #efd5a8; }
+    .chip.bad { background: var(--soft-bad); color: var(--bad); border-color: #efc0c0; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .card {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 18px;
+      background: linear-gradient(180deg, #fffefb 0%, #faf6ef 100%);
+    }
+
+    .label {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--dim);
+      margin-bottom: 8px;
+    }
+
+    .value {
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      overflow: hidden;
+    }
+
+    th, td {
+      padding: 14px 14px;
+      border-bottom: 1px solid #e9e0d1;
+      vertical-align: top;
+      text-align: left;
+    }
+
+    th {
+      background: #f8f3ea;
+      font-size: 13px;
+      color: var(--dim);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    tr:last-child td { border-bottom: none; }
+
+    code {
+      font-family: Consolas, "SFMono-Regular", monospace;
+      background: var(--code);
+      border: 1px solid #ebdfcc;
+      border-radius: 6px;
+      padding: 2px 6px;
+      color: #5a2f12;
+    }
+
+    .status {
+      display: inline-block;
+      padding: 5px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .status.ok { background: var(--soft); color: var(--accent); }
+    .status.warn { background: var(--soft-warn); color: var(--warn); }
+    .status.bad { background: var(--soft-bad); color: var(--bad); }
+
+    .note {
+      padding: 14px 16px;
+      border-left: 4px solid var(--accent);
+      background: #f5fbf8;
+      border-radius: 12px;
+      color: var(--ink);
+      margin-top: 14px;
+    }
+
+    .note.warn {
+      border-left-color: var(--warn);
+      background: #fff8ec;
+    }
+
+    ul {
+      margin: 10px 0 0 18px;
+      color: var(--dim);
+    }
+
+    li { margin: 6px 0; }
+
+    a {
+      color: #0f5da5;
+      text-decoration: none;
+    }
+
+    a:hover { text-decoration: underline; }
+
+    .mono { font-family: Consolas, "SFMono-Regular", monospace; }
+
+    @media (max-width: 980px) {
+      .grid { grid-template-columns: 1fr; }
+      h1 { font-size: 28px; }
+      table, thead, tbody, th, td, tr { display: block; }
+      thead { display: none; }
+      tr {
+        border-bottom: 1px solid #e9e0d1;
+        padding: 10px 0;
+      }
+      td {
+        border: none;
+        padding: 8px 0;
+      }
+      td::before {
+        content: attr(data-label);
+        display: block;
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--dim);
+        margin-bottom: 4px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <h1>Z1 阻尼方案对照</h1>
+      <p>目标是决定在推进到 Phase 4 之前，MuJoCo 应该继续使用当前的 sim2sim 特化策略，还是切回 Magiclab Z1 原生仓库更接近“描述文件默认值”的方案。</p>
+      <div class="chips">
+        <span class="chip ok">结论：先按原生推荐做对照验证</span>
+        <span class="chip warn">当前 MuJoCo 被动阻尼被代码清零</span>
+        <span class="chip bad">P3 当前 run 已过拟合，不应直接硬推到 P4</span>
+      </div>
+      <div class="note">
+        这里把“原生推荐”定义为：遵循 MagiclabRobotics 的 Z1 描述文件默认设置，不主动把 MuJoCo 的被动关节阻尼清零；同时保留 Z1 训练侧使用的 PD 增益，做一版干净对照。
+      </div>
+    </section>
+
+    <section class="grid">
+      <div class="card">
+        <div class="label">Current MuJoCo</div>
+        <div class="value">Passive Damping = 0</div>
+        <p>当前 sim2sim 在运行时覆盖 MuJoCo model，把 12 个腿部关节的 <code>dof_damping</code> 全部设为 <code>0.0</code>。</p>
+      </div>
+      <div class="card">
+        <div class="label">Native Z1 MJCF</div>
+        <div class="value">Passive Damping = 10</div>
+        <p>原生 Z1 描述文件在 MJCF <code>&lt;default&gt;</code> 下声明了 <code>&lt;joint damping="10"/&gt;</code>。</p>
+      </div>
+      <div class="card">
+        <div class="label">P4 Gate</div>
+        <div class="value">先验证再推进</div>
+        <p>建议先录像对照 Isaac Lab / MuJoCo，并用原生阻尼方案复查一次，再决定是否从 <code>p3_model_7900.pt</code> 开新 P4 run。</p>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>方案总表</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>项</th>
+            <th>当前实现</th>
+            <th>原生推荐</th>
+            <th>来源 / 证据</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td data-label="项"><strong>MuJoCo 被动关节阻尼</strong></td>
+            <td data-label="当前实现"><span class="status warn">清零</span><br><code>model.dof_damping[jid] = 0.0</code></td>
+            <td data-label="原生推荐"><span class="status ok">保留 MJCF 默认值</span><br>不主动覆盖，沿用 <code>damping="10"</code></td>
+            <td data-label="来源 / 证据">
+              当前代码：<a href="D:/Desktop_Files/GPU-Train/RTX6000/Magicbot_Z1/magiclab_rl_lab/sim2sim/mujoco_manual.py">mujoco_manual.py</a> 第 671-672 行，
+              <a href="D:/Desktop_Files/GPU-Train/RTX6000/Magicbot_Z1/magiclab_rl_lab/sim2sim/mujoco_humanoid_gym.py">mujoco_humanoid_gym.py</a> 第 347-350 行。<br>
+              原生描述：<a href="D:/Desktop_Files/GPU-Train/RTX6000/Magicbot_Z1/magicbot-z1_description/mjcf/MAGICBOTZ1.xml">MAGICBOTZ1.xml</a> 第 44 行。<br>
+              GitHub：<a href="https://github.com/MagiclabRobotics/magicbot-z1_description/blob/master/mjcf/MAGICBOTZ1.xml">MagiclabRobotics/magicbot-z1_description</a>
+            </td>
+          </tr>
+          <tr>
+            <td data-label="项"><strong>PD damping / kd</strong></td>
+            <td data-label="当前实现"><span class="status ok">启用</span><br><code>[4,4,4,5,3,3] x 2</code></td>
+            <td data-label="原生推荐"><span class="status ok">同样保留</span><br>继续使用这组 Z1 训练/部署导出的腿部 PD damping</td>
+            <td data-label="来源 / 证据">
+              资产配置：<a href="D:/Desktop_Files/GPU-Train/RTX6000/Magicbot_Z1/magiclab_rl_lab/source/magiclab_rl_lab/magiclab_rl_lab/assets/robots/magiclab.py">magiclab.py</a> 第 121-138 行。<br>
+              部署导出：<a href="D:/Desktop_Files/GPU-Train/RTX6000/Magicbot_Z1/videos/p/p3/20260522_174009/params/deploy.yaml">deploy.yaml</a> 第 3-5 行。<br>
+              MuJoCo 读取：<a href="D:/Desktop_Files/GPU-Train/RTX6000/Magicbot_Z1/magiclab_rl_lab/sim2sim/mujoco_manual.py">mujoco_manual.py</a> 第 635-643 行。
+            </td>
+          </tr>
+          <tr>
+            <td data-label="项"><strong>Armature</strong></td>
+            <td data-label="当前实现"><span class="status ok">运行时覆盖</span><br><code>0.02863</code> hip/knee，<code>0.01503</code> ankle</td>
+            <td data-label="原生推荐"><span class="status ok">保持一致</span><br>这部分与训练资产一致，不是主要矛盾</td>
+            <td data-label="来源 / 证据">
+              当前 MuJoCo：<a href="D:/Desktop_Files/GPU-Train/RTX6000/Magicbot_Z1/magiclab_rl_lab/sim2sim/mujoco_manual.py">mujoco_manual.py</a> 第 674-677 行。<br>
+              训练资产：<a href="D:/Desktop_Files/GPU-Train/RTX6000/Magicbot_Z1/magiclab_rl_lab/source/magiclab_rl_lab/magiclab_rl_lab/assets/robots/magiclab.py">magiclab.py</a> 第 127-138 行。
+            </td>
+          </tr>
+          <tr>
+            <td data-label="项"><strong>地形加载逻辑</strong></td>
+            <td data-label="当前实现"><span class="status warn">Isaac / MuJoCo 分开核对</span><br>Isaac 录像取 run 内快照，MuJoCo 由 <code>load_model_with_terrain()</code> 注入</td>
+            <td data-label="原生推荐"><span class="status ok">先做一一对照</span><br>推进 P4 前先确认 P3 gentle terrain 在两侧都一致</td>
+            <td data-label="来源 / 证据">
+              Isaac 录像：<a href="D:/Desktop_Files/GPU-Train/RTX6000/Magicbot_Z1/magiclab_rl_lab/scripts/rsl_rl/play_z1_video.py">play_z1_video.py</a> 第 103-128 行。<br>
+              MuJoCo 地形：<a href="D:/Desktop_Files/GPU-Train/RTX6000/Magicbot_Z1/magiclab_rl_lab/sim2sim/mujoco_manual.py">mujoco_manual.py</a> 第 191 行与第 648-651 行。
+            </td>
+          </tr>
+          <tr>
+            <td data-label="项"><strong>P3 -> P4 推进方式</strong></td>
+            <td data-label="当前实现"><span class="status bad">不要继续硬训同一个 P3 run</span><br>当前 P3 已明显过拟合</td>
+            <td data-label="原生推荐"><span class="status ok">新开 P4 run</span><br>从 <code>p3_model_7900.pt</code> 初始化，但先完成视频与阻尼对照</td>
+            <td data-label="来源 / 证据">
+              [bestmodel_legged.json](D:/Desktop_Files/GPU-Train/RTX6000/Magicbot_Z1/docs/tracking/bestmodel_legged.json)<br>
+              P3 best: <code>32.52 @ model_7900.pt</code><br>
+              P3 latest: <code>-8.89 @ iter 10479</code>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="panel">
+      <h2>关键参数矩阵</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>关节组</th>
+            <th>Stiffness</th>
+            <th>PD Damping / kd</th>
+            <th>Armature</th>
+            <th>备注</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td data-label="关节组">Hip pitch / roll / yaw</td>
+            <td data-label="Stiffness"><code>100</code></td>
+            <td data-label="PD Damping / kd"><code>4</code></td>
+            <td data-label="Armature"><code>0.02863</code></td>
+            <td data-label="备注">当前部署与训练资产一致，问题不在这组数字本身。</td>
+          </tr>
+          <tr>
+            <td data-label="关节组">Knee</td>
+            <td data-label="Stiffness"><code>150</code></td>
+            <td data-label="PD Damping / kd"><code>5</code></td>
+            <td data-label="Armature"><code>0.02863</code></td>
+            <td data-label="备注">当前部署与训练资产一致。</td>
+          </tr>
+          <tr>
+            <td data-label="关节组">Ankle pitch / roll</td>
+            <td data-label="Stiffness"><code>60</code></td>
+            <td data-label="PD Damping / kd"><code>3</code></td>
+            <td data-label="Armature"><code>0.01503</code></td>
+            <td data-label="备注">当前部署与训练资产一致。</td>
+          </tr>
+          <tr>
+            <td data-label="关节组">MJCF passive damping</td>
+            <td data-label="Stiffness">不适用</td>
+            <td data-label="PD Damping / kd"><code>10</code>（MJCF 默认）</td>
+            <td data-label="Armature">MJCF 自身定义</td>
+            <td data-label="备注">这是你现在与“原生推荐”最核心的差异项。</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="panel">
+      <h2>建议动作</h2>
+      <div class="note warn">
+        建议先采用原生推荐方案做对照，也就是在 MuJoCo 里保留 Z1 MJCF 默认被动阻尼，不再把 <code>dof_damping</code> 清零，然后与当前方案各录一版 P3 视频。
+      </div>
+      <ul>
+        <li>对照 A：当前方案。MuJoCo 被动阻尼清零，PD <code>kd=[4,4,4,5,3,3,...]</code>。</li>
+        <li>对照 B：原生推荐。保留 MJCF <code>damping="10"</code>，同时仍保留同一套 PD <code>kd</code>。</li>
+        <li>两版都用同一个 <code>p3_model_7900.pt</code>、同一个 gentle terrain、同一组速度命令和相机位姿。</li>
+        <li>如果 B 比 A 更稳，P4 就从 B 方案继续；如果 B 明显过阻尼，再保留 A，但要把这个偏差写入 sim2sim 基线说明。</li>
+      </ul>
+    </section>
+
+    <section class="panel">
+      <h2>来源</h2>
+      <ul>
+        <li>本地 MJCF：<a href="D:/Desktop_Files/GPU-Train/RTX6000/Magicbot_Z1/magicbot-z1_description/mjcf/MAGICBOTZ1.xml">MAGICBOTZ1.xml</a></li>
+        <li>本地 MuJoCo sim2sim：<a href="D:/Desktop_Files/GPU-Train/RTX6000/Magicbot_Z1/magiclab_rl_lab/sim2sim/mujoco_manual.py">mujoco_manual.py</a>、<a href="D:/Desktop_Files/GPU-Train/RTX6000/Magicbot_Z1/magiclab_rl_lab/sim2sim/mujoco_humanoid_gym.py">mujoco_humanoid_gym.py</a></li>
+        <li>本地训练资产：<a href="D:/Desktop_Files/GPU-Train/RTX6000/Magicbot_Z1/magiclab_rl_lab/source/magiclab_rl_lab/magiclab_rl_lab/assets/robots/magiclab.py">magiclab.py</a></li>
+        <li>本地部署参数样例：<a href="D:/Desktop_Files/GPU-Train/RTX6000/Magicbot_Z1/videos/p/p3/20260522_174009/params/deploy.yaml">deploy.yaml</a></li>
+        <li>GitHub 仓库：<a href="https://github.com/MagiclabRobotics">https://github.com/MagiclabRobotics</a></li>
+        <li>GitHub Z1 描述文件：<a href="https://github.com/MagiclabRobotics/magicbot-z1_description/blob/master/mjcf/MAGICBOTZ1.xml">magicbot-z1_description / MAGICBOTZ1.xml</a></li>
+      </ul>
+    </section>
+  </div>
+</body>
+</html>

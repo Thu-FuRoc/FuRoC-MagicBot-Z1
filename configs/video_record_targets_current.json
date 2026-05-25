@@ -1,0 +1,55 @@
+{
+  "description": "Current validated Z1 batch video recording targets using static eye=(4,-4,3), target=(0,0,0).",
+  "local_output_dir": "videos/batch_best_20260523",
+  "remote_output_dir": "videos/batch_best_20260523",
+  "targets": [
+    {
+      "id": "legged_gym_p1_best",
+      "label": "Legged Gym P1 Best",
+      "group": "A_legged_gym",
+      "run_dir": "2026-05-21_05-34-18_p1",
+      "checkpoint": "model_3700.pt",
+      "output_name": "legged_gym_p1_model_3700_isaaclab_eye4m4_3.mp4"
+    },
+    {
+      "id": "legged_gym_p2_best",
+      "label": "Legged Gym P2 Best",
+      "group": "A_legged_gym",
+      "run_dir": "2026-05-21_08-15-14_p2",
+      "checkpoint": "model_8300.pt",
+      "output_name": "legged_gym_p2_model_8300_isaaclab_eye4m4_3.mp4"
+    },
+    {
+      "id": "legged_gym_p3_best",
+      "label": "Legged Gym P3 Best",
+      "group": "A_legged_gym",
+      "run_dir": "2026-05-21_12-52-29_p3",
+      "checkpoint": "model_7900.pt",
+      "output_name": "legged_gym_p3_model_7900_isaaclab_eye4m4_3.mp4"
+    },
+    {
+      "id": "p1_best",
+      "label": "P1 Best",
+      "group": "B_custom_curriculum",
+      "run_dir": "2026-05-06_15-47-12_p1_coarse",
+      "checkpoint": "model_2900.pt",
+      "output_name": "p1_coarse_model_2900_isaaclab_eye4m4_3.mp4"
+    },
+    {
+      "id": "p2_best",
+      "label": "P2 Best",
+      "group": "B_custom_curriculum",
+      "run_dir": "2026-05-18_19-35-30_p2_fine",
+      "checkpoint": "model_3600.pt",
+      "output_name": "p2_fine_model_3600_isaaclab_eye4m4_3.mp4"
+    },
+    {
+      "id": "p3_best",
+      "label": "P3 Best",
+      "group": "B_custom_curriculum",
+      "run_dir": "2026-05-20_16-46-08_p3_coarse",
+      "checkpoint": "model_6100.pt",
+      "output_name": "p3_coarse_model_6100_isaaclab_eye4m4_3.mp4"
+    }
+  ]
+}

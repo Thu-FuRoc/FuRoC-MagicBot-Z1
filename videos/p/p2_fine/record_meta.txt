@@ -1,9 +1,0 @@
-phase=p2_fine
-run_dir=2026-05-15_19-58-42_p2_fine
-checkpoint=model_4800
-video_length=1000
-vel_x=0.3
-duration=20
-num_steps=1000
-gpu=cuda:0
-saved_at=2026-05-16T19:42:07+00:00
