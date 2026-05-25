@@ -16,6 +16,6 @@ conda activate isaaclab
 
 # Resume 5-phase orchestrator from saved state (p3_fine)
 python -u scripts/automation/phase_orchestrator.py \
-    --plan training_plans/z1_5phase_plan.yaml \
+    --plan config/pipeline/z1_5phase_plan.yaml \
     --num-gpus 4 \
     --poll-interval 120
