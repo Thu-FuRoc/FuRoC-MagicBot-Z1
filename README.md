@@ -15,7 +15,7 @@ RL locomotion training pipeline for **MagicBot Z1 12DOF bipedal robot**, built o
 ### P1–P2 Pipeline Demo
 
 <p align="center">
-  <img src="docs/github_readme/pipeline_p1p2_demo.gif" alt="P1-P2 Pipeline Demo (Isaac Lab + MuJoCo)" width="60%">
+  <img src="docs/github_readme//B_custom_curriculum/pipeline_p1p2_demo.gif" alt="P1-P2 Pipeline Demo (Isaac Lab + MuJoCo)" width="60%">
 </p>
 
 > P1 Coarse → P1 Fine → P2 Coarse → P2 Fine. Left column: Isaac Lab simulation. Right column: MuJoCo sim2sim validation.
@@ -23,7 +23,7 @@ RL locomotion training pipeline for **MagicBot Z1 12DOF bipedal robot**, built o
 ### Legged Gym P1–P3 Progression
 
 <p align="center">
-  <img src="docs/github_readme/leg.gif" alt="Legged Gym P1-P2-P3 Training Progression" width="60%">
+  <img src="docs/github_readme/B_custom_curriculum/leg.gif" alt="Legged Gym P1-P2-P3 Training Progression" width="60%">
 </p>
 
 > P1 → P2 → P3 progression with Legged Gym. Isaac Lab simulation.
@@ -33,7 +33,7 @@ RL locomotion training pipeline for **MagicBot Z1 12DOF bipedal robot**, built o
 ### Curriculum Reward Trends
 
 <p align="center">
-  <img src="docs/github_readme/curriculum_reward_trends.png" alt="Curriculum Reward Trends" width="90%">
+  <img src="docs/github_readme/B_curriculum_reward_trends.png" alt="Curriculum Reward Trends" width="90%">
 </p>
 
 > Reward curves across sub-phases. P1 (flat terrain, bootstrap → standing), P2 (flat, velocity tracking). Each phase resumes from the best checkpoint of the previous phase.
@@ -41,13 +41,13 @@ RL locomotion training pipeline for **MagicBot Z1 12DOF bipedal robot**, built o
 ### Left-Right Joint Asymmetry
 
 <p align="center">
-  <img src="docs/github_readme/joint_asymmetry_p2_vs_p3.png" alt="Left vs Right Joint Angles P2 vs P3" width="95%">
+  <img src="docs/github_readme/B_custom_curriculum/joint_asymmetry_p2_vs_p3.png" alt="Left vs Right Joint Angles P2 vs P3" width="95%">
 </p>
 
 > Time-series of left (blue) vs right (red) joint angles. **Top row (P2 Fine, flat terrain)**: joints are roughly symmetric (offset < 0.03 rad). **Bottom row (P3 Coarse, gentle terrain)**: significant offset appears — hip pitch (−0.37 rad), hip yaw (−0.52 rad), knee pitch (+0.39 rad).
 
 <p align="center">
-  <img src="docs/github_readme/joint_asymmetry_barplot.png" alt="Joint Asymmetry Bar Plot" width="85%">
+  <img src="docs/github_readme/B_custom_curriculum/joint_asymmetry_barplot.png" alt="Joint Asymmetry Bar Plot" width="85%">
 </p>
 
 > Quantitative comparison of left-right asymmetry across phases. P3 Coarse shows 10–20x larger mean offset than P2 Fine.
