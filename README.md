@@ -15,7 +15,7 @@ RL locomotion training pipeline for **MagicBot Z1 12DOF bipedal robot**, built o
 ### P1–P2 Pipeline Demo
 
 <p align="center">
-  <img src="docs/github_readme//B_custom_curriculum/pipeline_p1p2_demo.gif" alt="P1-P2 Pipeline Demo (Isaac Lab + MuJoCo)" width="60%">
+  <img src="docs/github_readme/B_custom_curriculum/pipeline_p1p2_demo.gif" alt="P1-P2 Pipeline Demo (Isaac Lab + MuJoCo)" width="60%">
 </p>
 
 > P1 Coarse → P1 Fine → P2 Coarse → P2 Fine. Left column: Isaac Lab simulation. Right column: MuJoCo sim2sim validation.
@@ -23,7 +23,7 @@ RL locomotion training pipeline for **MagicBot Z1 12DOF bipedal robot**, built o
 ### Legged Gym P1–P3 Progression
 
 <p align="center">
-  <img src="docs/github_readme/B_custom_curriculum/leg.gif" alt="Legged Gym P1-P2-P3 Training Progression" width="60%">
+  <img src="docs\github_readme\B_custom_curriculum\legged_gym_p1_p2_p3.gif" alt="Legged Gym P1-P2-P3 Training Progression" width="60%">
 </p>
 
 > P1 → P2 → P3 progression with Legged Gym. Isaac Lab simulation.
@@ -33,7 +33,7 @@ RL locomotion training pipeline for **MagicBot Z1 12DOF bipedal robot**, built o
 ### Curriculum Reward Trends
 
 <p align="center">
-  <img src="docs/github_readme/B_curriculum_reward_trends.png" alt="Curriculum Reward Trends" width="90%">
+  <img src="docs\github_readme\B_custom_curriculum\curriculum_reward_trends.png" alt="Curriculum Reward Trends" width="90%">
 </p>
 
 > Reward curves across sub-phases. P1 (flat terrain, bootstrap → standing), P2 (flat, velocity tracking). Each phase resumes from the best checkpoint of the previous phase.
