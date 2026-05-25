@@ -20,6 +20,14 @@ RL locomotion training pipeline for **MagicBot Z1 12DOF bipedal robot**, built o
 
 > P1 Coarse → P1 Fine → P2 Coarse → P2 Fine. Left column: Isaac Lab simulation. Right column: MuJoCo sim2sim validation.
 
+### Legged Gym P1–P3 Progression
+
+<p align="center">
+  <img src="docs/github_readme/leg.gif" alt="Legged Gym P1-P2-P3 Training Progression" width="60%">
+</p>
+
+> P1 → P2 → P3 progression with Legged Gym. Isaac Lab simulation.
+
 ## Results
 
 ### Curriculum Reward Trends
