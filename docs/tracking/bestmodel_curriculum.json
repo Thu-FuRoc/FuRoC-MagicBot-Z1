@@ -107,51 +107,19 @@
     {
       "id": "p3_coarse",
       "phase_id": "p3",
-      "run_dir": null,
-      "status": "LOCAL_ONLY",
-      "best_model": "model_3600.pt",
-      "best_iteration": null,
-      "best_reward": null,
-      "peak_reward": null,
-      "local_models": {
-        "checkpoint": "models/B_custom_curriculum/p3_coarse/p3_coarse_model_3600.pt",
-        "jit_policy": null
-      },
-      "source": "local_model_scan"
-    },
-    {
-      "id": "p3_coarse",
-      "phase_id": "p3",
-      "run_dir": null,
-      "status": "LOCAL_ONLY",
+      "phase_name": "Gentle Terrain",
+      "run_dir": "2026-05-20_06-01-49_p3_coarse",
+      "status": "COMPLETE",
       "best_model": "model_6100.pt",
-      "best_iteration": null,
-      "best_reward": null,
-      "peak_reward": null,
+      "best_iteration": 6100,
+      "best_reward": 17.71,
+      "peak_reward": 22.68,
+      "note": "Current retained baseline for continuation. Replaces deprecated p3_fine reference.",
       "local_models": {
         "checkpoint": "models/B_custom_curriculum/p3_coarse/p3_coarse_model_6100.pt",
         "jit_policy": null
       },
-      "source": "local_model_scan"
-    },
-    {
-      "id": "p3_fine",
-      "phase_id": "p3",
-      "phase_name": "Gentle Terrain",
-      "run_dir": "2026-05-16_12-13-26_p3_fine",
-      "status": "COMPLETE",
-      "best_model": "model_5500.pt",
-      "best_iteration": 5500,
-      "best_reward": null,
-      "peak_reward": null,
-      "note": "Primary retained checkpoint. Reward metrics were not preserved in local or remote summaries.",
-      "completed_at": "2026-05-16T21:20:00+08:00",
-      "local_models": {
-        "checkpoint": "models/B_custom_curriculum/p3_fine/p3_fine_model_5500.pt",
-        "jit_policy": "models/B_custom_curriculum/p3_fine/p3_fine_policy_m5500.pt"
-      },
-      "source": "bestmodel_phase.head.json"
-    },
+      "source": "best_models.json"
     }
   ]
 }
