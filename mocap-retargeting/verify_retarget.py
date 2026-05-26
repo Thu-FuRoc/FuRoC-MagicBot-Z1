@@ -273,9 +273,14 @@ def main():
 
     # Generate plots
     if HAS_MPL:
-        print("Generating plots...")
-        plot_joint_trajectories(data, args.fps, script_dir / "retarget_verify.png")
-        plot_symmetry(data, args.fps, script_dir / "retarget_symmetry.png")
+        print("\nGenerating plots...")
+        out_dir = Path("plots")
+        out_dir.mkdir(exist_ok=True)
+        
+        # We need to recreate the plots calling the helper functions or directly
+        # based on existing logic.
+        plot_joint_trajectories(data, args.fps, out_dir / "retarget_verify.png")
+        plot_symmetry(data, args.fps, out_dir / "retarget_symmetry.png")
     else:
         print("Skipping plots (matplotlib not available)")
 
