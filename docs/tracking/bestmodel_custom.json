@@ -1,6 +1,6 @@
 {
   "source": "local-model-baseline",
-  "category": "bestmodel_curriculum",
+  "category": "bestmodel_custom",
   "updated_at": "2026-05-26T11:34:07.525450",
   "model_root": "models/B_custom_curriculum",
   "total_entries": 11,
@@ -20,7 +20,7 @@
         "checkpoint": "models/B_custom_curriculum/p1_coarse/p1_coarse_model_2900.pt",
         "jit_policy": "models/B_custom_curriculum/p1_coarse/p1_coarse_policy.pt"
       },
-      "source": "bestmodel_phase.head.json"
+      "source": "legacy_phase_head_snapshot"
     },
     {
       "id": "p1_fine",
@@ -37,7 +37,7 @@
         "checkpoint": "models/B_custom_curriculum/p1_fine/p1_fine_model_2800.pt",
         "jit_policy": "models/B_custom_curriculum/p1_fine/p1_fine_policy.pt"
       },
-      "source": "bestmodel_phase.head.json"
+      "source": "legacy_phase_head_snapshot"
     },
     {
       "id": "p2_coarse",
@@ -54,7 +54,7 @@
         "checkpoint": "models/B_custom_curriculum/p2_coarse/p2_coarse_model_4000.pt",
         "jit_policy": "models/B_custom_curriculum/p2_coarse/p2_coarse_policy.pt"
       },
-      "source": "bestmodel_phase.head.json"
+      "source": "legacy_phase_head_snapshot"
     },
     {
       "id": "p2_fine_old",
@@ -70,7 +70,7 @@
         "checkpoint": "models/B_custom_curriculum/p2_fine/p2_fine_model_3200.pt",
         "jit_policy": "models/B_custom_curriculum/p2_fine/p2_fine_policy.pt"
       },
-      "source": "bestmodel_phase.head.json.archived_runs"
+      "source": "legacy_phase_head_archived_runs"
     },
     {
       "id": "p2_fine",
@@ -102,7 +102,7 @@
         "checkpoint": "models/B_custom_curriculum/p2_fine/p2_fine_model_4800.pt",
         "jit_policy": "models/B_custom_curriculum/p2_fine/p2_fine_policy.pt"
       },
-      "source": "bestmodel_phase.head.json"
+      "source": "legacy_phase_head_snapshot"
     },
     {
       "id": "p3_coarse",
@@ -119,7 +119,7 @@
         "checkpoint": "models/B_custom_curriculum/p3_coarse/p3_coarse_model_6100.pt",
         "jit_policy": null
       },
-      "source": "best_models.json"
+      "source": "legacy_best_models_snapshot"
     }
   ]
 }

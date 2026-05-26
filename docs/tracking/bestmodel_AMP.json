@@ -1,0 +1,9 @@
+{
+  "source": "local-model-baseline",
+  "category": "bestmodel_AMP",
+  "updated_at": "2026-05-26T11:34:07.525450",
+  "model_root": "models/AMP",
+  "total_entries": 0,
+  "models": [],
+  "note": "No local AMP model directory found under Magicbot_Z1/models."
+}

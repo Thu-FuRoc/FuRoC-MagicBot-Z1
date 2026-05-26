@@ -1,0 +1,51 @@
+{
+  "source": "local-model-baseline",
+  "category": "bestmodel_legged",
+  "updated_at": "2026-05-26T11:34:41.468686",
+  "model_root": "models/A_legged_gym",
+  "total_entries": 3,
+  "models": [
+    {
+      "id": "p1",
+      "run_dir": "2026-05-21_05-34-18_p1",
+      "status": "HEALTHY",
+      "best_model": "model_3700.pt",
+      "best_iteration": 3700,
+      "best_reward": 7.23,
+      "peak_reward": 7.98,
+      "local_models": {
+        "checkpoint": "models/A_legged_gym/p1/p1_model_3700.pt",
+        "jit_policy": "models/A_legged_gym/p1/p1_policy.pt"
+      },
+      "source": "legacy_best_models_snapshot"
+    },
+    {
+      "id": "p2",
+      "run_dir": "2026-05-21_08-15-14_p2",
+      "status": "OVERFITTING",
+      "best_model": "model_8300.pt",
+      "best_iteration": 8300,
+      "best_reward": 28.09,
+      "peak_reward": 29.09,
+      "local_models": {
+        "checkpoint": "models/A_legged_gym/p2/p2_model_8300.pt",
+        "jit_policy": "models/A_legged_gym/p2/p2_policy.pt"
+      },
+      "source": "legacy_best_models_snapshot"
+    },
+    {
+      "id": "p3",
+      "run_dir": "2026-05-21_12-52-29_p3",
+      "status": "OVERFITTING",
+      "best_model": "model_7900.pt",
+      "best_iteration": 7900,
+      "best_reward": 32.52,
+      "peak_reward": 35.75,
+      "local_models": {
+        "checkpoint": "models/A_legged_gym/p3/p3_model_7900.pt",
+        "jit_policy": "models/A_legged_gym/p3/p3_policy.pt"
+      },
+      "source": "legacy_best_models_snapshot"
+    }
+  ]
+}
