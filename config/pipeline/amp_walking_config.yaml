@@ -1,0 +1,77 @@
+# AMP (Adversarial Motion Prior) Configuration for MagicBot-Z1 Walking
+# =====================================================================
+# Based on arXiv:2604.19102v1 — Selective AMP for Humanoid Multi-Gait Learning
+#
+# This config applies AMP to the WALKING gait (periodic, stability-critical).
+# Per the paper's Table I: Walking uses α=0.3, β=0.8, sym_loss=True
+#
+# The AMP reward signal regularizes the policy toward natural walking patterns
+# extracted from human mocap data, improving:
+#   - Convergence speed
+#   - Joint smoothness
+#   - Sim-to-real transfer quality
+
+amp:
+  enabled: true
+
+  # ── Selective AMP parameters (per paper Table I) ──
+  # r_combined = (1 - β) · r_AMP + β · r_task
+  #            = 0.2 · r_AMP + 0.8 · r_task
+  alpha: 0.3              # AMP reward coefficient (scales r_AMP before interpolation)
+  beta: 0.8               # Task reward weight (0.8 = 80% task reward, 20% AMP reward)
+  sym_loss: true           # Symmetry loss for L/R joint consistency (enabled for walking)
+
+  # ── Discriminator network ──
+  # 3-layer MLP that distinguishes expert vs policy state transitions
+  discriminator:
+    hidden_dims: [1024, 512, 256]
+    activation: relu       # ReLU as specified in the paper
+    learning_rate: 1.0e-4
+    gradient_penalty: 10.0  # λ for gradient penalty regularization
+    weight_decay: 0.0001
+
+  # ── Reference motion dataset ──
+  dataset:
+    path: "mocap-retargeting/amp_walking_dataset.npy"
+    metadata_path: "mocap-retargeting/amp_walking_metadata.txt"
+    state_dim: 34           # per-state dimension (14 pos + 14 vel + 3 ang_vel + 3 gravity)
+    transition_dim: 68      # full transition (s_t, s_{t+1})
+    num_preload: 200000     # number of preloaded transitions for discriminator training
+
+  # ── AMP reward computation ──
+  # r_AMP = α · max(0, 1 - ¼(D(s_t, s_{t+1}) - 1)²)
+  reward:
+    clip_min: 0.0           # r_AMP is clipped to [0, ∞)
+    style_reward_scale: 1.0 # additional scaling if needed
+
+  # ── Discriminator training ──
+  # L_D = E_policy[(D+1)²] + E_expert[(D−1)²] + λ · E_expert[‖∇D‖²]
+  training:
+    batch_size: 512         # discriminator mini-batch size
+    update_frequency: 1     # update discriminator every N PPO iterations
+    replay_buffer_size: 1000000  # policy replay buffer for discriminator
+
+# ── Integration with existing Z1 pipeline ──
+# This config should be loaded alongside the existing z1_5phase_plan.yaml.
+# The AMP module hooks into the PPO training loop as follows:
+#
+# 1. At each PPO step, collect policy state transitions (s_t, s_{t+1})
+# 2. Sample expert transitions from the preloaded dataset
+# 3. Update discriminator with both batches
+# 4. Compute AMP reward: r_AMP for each policy transition
+# 5. Blend: r_total = (1-β) · r_AMP + β · r_task
+#
+# For Phase 2+ walking gaits, this replaces or augments the existing reward.
+# The selective strategy means AMP is ONLY active for walking/stair-climbing,
+# not for running/jumping if those gaits are added later.
+
+# ── Per-gait AMP configuration reference (from paper Table I) ──
+# Use these values when extending to other gaits:
+#
+# | Gait           | α   | β   | Sym Loss | AMP Active |
+# |----------------|-----|-----|----------|------------|
+# | Walking        | 0.3 | 0.8 | True     | Yes        |
+# | Goose-stepping | 0.6 | 0.7 | True     | Yes        |
+# | Running        | 0.0 | 1.0 | True     | No         |
+# | Stair climbing | 0.3 | 0.8 | True     | Yes        |
+# | Jumping        | 0.0 | 1.0 | False    | No         |

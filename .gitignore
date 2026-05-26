@@ -79,3 +79,7 @@ data/
 # Temp test files
 tmp_*
 
+# Large datasets
+mocap-retargeting/amp_walking_dataset.npy
+
+
