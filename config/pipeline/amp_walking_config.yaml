@@ -32,8 +32,8 @@ amp:
 
   # ── Reference motion dataset ──
   dataset:
-    path: "mocap-retargeting/amp_walking_dataset.npy"
-    metadata_path: "mocap-retargeting/amp_walking_metadata.txt"
+    path: "mocap-retargeting/amp_walking_dataset_full.npy"
+    metadata_path: "mocap-retargeting/amp_walking_metadata_full.txt"
     state_dim: 34           # per-state dimension (14 pos + 14 vel + 3 ang_vel + 3 gravity)
     transition_dim: 68      # full transition (s_t, s_{t+1})
     num_preload: 200000     # number of preloaded transitions for discriminator training
