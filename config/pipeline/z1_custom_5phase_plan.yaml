@@ -1,0 +1,399 @@
+# MagicBot Z1 12DOF - 5-Phase Automated Training Pipeline
+# Note: Comments were normalized to UTF-8. Training parameters are unchanged.
+# Usage:
+#   python -m automation.phase_orchestrator --plan training_plans/z1_custom_5phase_plan.yaml
+#   python -m automation.phase_orchestrator --plan training_plans/z1_custom_5phase_plan.yaml --start-from p1_coarse
+#   python -m automation.phase_orchestrator --plan training_plans/z1_custom_5phase_plan.yaml --dry-run
+
+
+plan_name: z1_5phase
+num_gpus: 4
+num_envs: 4096
+task: Magiclab-Z1-12dof-Velocity
+
+defaults:
+  env:
+    decimation: 10
+    episode_length_s: 20.0
+    sim_dt: 0.002
+    action_scale: 0.25
+    bad_orientation_limit: 0.8
+    base_height_minimum: 0.2
+    target_height: 0.7
+    terminations:
+      time_out: true
+      bad_orientation: true
+      base_height: true
+      illegal_contact: true
+  ppo:
+    num_steps_per_env: 24
+    save_interval: 100
+    empirical_normalization: false
+    policy:
+      init_noise_std: 1.0
+      actor_hidden_dims: [512, 256, 128]
+      critic_hidden_dims: [512, 256, 128]
+      activation: elu
+    algorithm:
+      value_loss_coef: 1.0
+      use_clipped_value_loss: true
+      clip_param: 0.2
+      num_learning_epochs: 5
+      num_mini_batches: 4
+      schedule: adaptive
+      gamma: 0.99
+      lam: 0.95
+      desired_kl: 0.01
+      max_grad_norm: 1.0
+  monitor:
+    action_rate_threshold: -1.0
+    min_iterations: 2000
+  rollback:
+    reward_threshold: 0.95   # best_reward < starting_reward * this → rollback
+    max_retries: 1
+  post_phase:
+    enable_jit_export: true
+    enable_mujoco_video: true
+    enable_isaac_video: true
+    enable_video_labels: true
+    enable_plots: true
+    isaac:
+      video_length: 1000
+      num_envs: 16
+    mujoco:
+      num_steps: 1000
+      vel_sweep: true
+      vel_step: 0.1
+
+phases:
+  - id: p1
+    name: "Flat — Bootstrap"
+    terrain: flat
+    env:
+      terrain_type: plane          # no generator
+      terrain_generator: null
+    sub_phases:
+      - id: p1_coarse
+        name: "P1 Coarse"
+        max_iterations: 5000
+        env:
+          commands:
+            ranges:
+              lin_vel_x: [-0.1, 0.1]
+              lin_vel_y: [-0.1, 0.1]
+              ang_vel_z: [-0.1, 0.1]
+            limit_ranges:
+              lin_vel_x: [-0.1, 0.1]
+              lin_vel_y: [-0.1, 0.1]
+              ang_vel_z: [-0.1, 0.1]
+        ppo:
+          learning_rate: 1.0e-3
+          entropy_coef: 0.01
+        rewards:
+          track_lin_vel_xy: 0.0        # no velocity tracking in bootstrap
+          track_ang_vel_z: 0.0
+          alive: 0.5
+          base_height: -5.0
+          flat_orientation_l2: -2.0
+          action_rate_l1: -0.02
+          base_linear_velocity: -2.0
+          base_angular_velocity: -0.05
+          joint_vel: -0.001
+          joint_acc: -2.5e-7
+          energy: -2e-5
+          dof_pos_limits: -5.0
+          joint_deviation_legs: -0.7
+          joint_deviation_hip_knee: -0.5
+          feet_contact_number: 0.5
+          feet_slide: 0.0
+          feet_clearance: 0.0
+          stand_still: 0.0
+          undesired_contacts: 0.0
+        monitor:
+          action_rate_threshold: -0.6
+          min_iterations: 2000
+
+      - id: p1_fine
+        name: "P1 Fine"
+        max_iterations: 5000
+        env:
+          commands:
+            ranges:
+              lin_vel_x: [-0.1, 0.1]
+              lin_vel_y: [-0.1, 0.1]
+              ang_vel_z: [-0.1, 0.1]
+            limit_ranges:
+              lin_vel_x: [-0.1, 0.1]
+              lin_vel_y: [-0.1, 0.1]
+              ang_vel_z: [-0.1, 0.1]
+        ppo:
+          learning_rate: 5.0e-4
+          entropy_coef: 0.008
+        rewards:
+          track_lin_vel_xy: 0.0
+          track_ang_vel_z: 0.0
+          alive: 0.3
+          base_height: -8.0
+          flat_orientation_l2: -4.0
+          action_rate_l1: -0.04
+          base_linear_velocity: -2.0
+          base_angular_velocity: -0.05
+          joint_vel: -0.001
+          joint_acc: -2.5e-7
+          energy: -2e-5
+          dof_pos_limits: -5.0
+          joint_deviation_legs: -0.7
+          joint_deviation_hip_knee: -0.5
+          feet_contact_number: 0.5
+          feet_slide: 0.0
+          feet_clearance: 0.0
+          stand_still: -2.0
+          undesired_contacts: 0.0
+        monitor:
+          action_rate_threshold: -0.6
+          min_iterations: 2000
+
+  - id: p2
+    name: "Flat — Velocity Tracking"
+    terrain: flat
+    env:
+      terrain_type: plane
+      terrain_generator: null
+    sub_phases:
+      - id: p2_coarse
+        name: "P2 Coarse"
+        max_iterations: 10000
+        env:
+          commands:
+            ranges:
+              lin_vel_x: [-0.3, 0.5]
+              lin_vel_y: [-0.3, 0.3]
+              ang_vel_z: [-0.3, 0.3]
+            limit_ranges:
+              lin_vel_x: [-0.5, 1.0]
+              lin_vel_y: [-0.5, 0.5]
+              ang_vel_z: [-0.5, 0.5]
+        ppo:
+          learning_rate: 1.0e-3
+          entropy_coef: 0.01
+        rewards:
+          track_lin_vel_xy: 1.5
+          track_ang_vel_z: 0.75
+          alive: 0.15
+          base_height: -8.0
+          flat_orientation_l2: -4.0
+          action_rate_l1: -0.03
+          base_linear_velocity: -2.0
+          base_angular_velocity: -0.05
+          joint_vel: -0.001
+          joint_acc: -2.5e-7
+          energy: -2e-5
+          dof_pos_limits: -5.0
+          joint_deviation_legs: -0.7
+          joint_deviation_hip_knee: -0.8
+          feet_contact_number: 0.5
+          feet_slide: 0.0
+          feet_clearance: 0.0
+          stand_still: 0.0
+          undesired_contacts: 0.0
+        monitor:
+          action_rate_threshold: -0.7
+          min_iterations: 3000
+
+      - id: p2_fine
+        name: "P2 Fine"
+        max_iterations: 10000
+        env:
+          commands:
+            ranges:
+              lin_vel_x: [-0.5, 1.0]
+              lin_vel_y: [-0.5, 0.5]
+              ang_vel_z: [-0.5, 0.5]
+            limit_ranges:
+              lin_vel_x: [-0.5, 1.0]
+              lin_vel_y: [-0.5, 0.5]
+              ang_vel_z: [-0.5, 0.5]
+        ppo:
+          learning_rate: 5.0e-4
+          entropy_coef: 0.008
+        rewards:
+          track_lin_vel_xy: 2.0
+          track_ang_vel_z: 1.0
+          alive: 0.15
+          base_height: -10.0
+          flat_orientation_l2: -5.0
+          action_rate_l1: -0.05
+          base_linear_velocity: -2.0
+          base_angular_velocity: -0.05
+          joint_vel: -0.001
+          joint_acc: -2.5e-7
+          energy: -2e-5
+          dof_pos_limits: -5.0
+          joint_deviation_legs: -0.7
+          joint_deviation_hip_knee: -0.8
+          feet_contact_number: 0.5
+          feet_slide: 0.0
+          feet_clearance: 0.0
+          stand_still: -3.5
+          undesired_contacts: 0.0
+        monitor:
+          action_rate_threshold: -0.8
+          min_iterations: 3000
+
+  - id: p3
+    name: "Gentle Terrain"
+    terrain: gentle
+    env:
+      terrain_type: generator
+      commands:
+        resampling_time_range: [5.0, 8.0]
+        rel_standing_envs: 0.15
+        rel_heading_envs: 1.0
+      events:
+        interval_force_torque:
+          interval_range_s: [6.0, 9.0]
+          force_range: [-5.0, 5.0]
+          torque_range: [-1.5, 1.5]
+        reset_base:
+          velocity_range:
+            x: [-0.5, 0.5]
+            y: [-0.5, 0.5]
+            z: [-0.3, 0.3]
+            roll: [-0.3, 0.3]
+            pitch: [-0.3, 0.3]
+            yaw: [-0.3, 0.3]
+        push_robot:
+          interval_range_s: [6.0, 9.0]
+          velocity_range:
+            x: [-0.3, 0.3]
+            y: [-0.2, 0.2]
+      terrain_generator:
+        size: [8.0, 8.0]
+        border_width: 20.0
+        num_rows: 9
+        num_cols: 21
+        horizontal_scale: 0.1
+        vertical_scale: 0.005
+        slope_threshold: 0.75
+        use_cache: false
+        sub_terrains:
+          flat:
+            type: MeshPlaneTerrainCfg
+            proportion: 0.9
+          random_grid:
+            type: RandomGridTerrainCfg
+            proportion: 0.1
+            difficulty_range: [0.0, 0.15]
+    sub_phases:
+      - id: p3_coarse
+        name: "P3 Coarse"
+        max_iterations: 10000
+        env:
+          commands:
+            resampling_time_range: [5.0, 8.0]
+            rel_standing_envs: 0.15
+          events:
+            interval_force_torque:
+              interval_range_s: [6.0, 9.0]
+              force_range: [-5.0, 5.0]
+              torque_range: [-1.5, 1.5]
+            reset_base:
+              velocity_range:
+                x: [-0.5, 0.5]
+                y: [-0.5, 0.5]
+                z: [-0.3, 0.3]
+                roll: [-0.3, 0.3]
+                pitch: [-0.3, 0.3]
+                yaw: [-0.3, 0.3]
+            push_robot:
+              interval_range_s: [6.0, 9.0]
+              velocity_range:
+                x: [-0.3, 0.3]
+                y: [-0.2, 0.2]
+        ppo:
+          learning_rate: 5.0e-4
+          entropy_coef: 0.01
+        rewards:
+          track_lin_vel_xy: 2.0
+          track_ang_vel_z: 1.0
+          alive: 0.25
+          base_height: -8.0
+          flat_orientation_l2: -4.0
+          action_rate_l1: -0.04
+          base_linear_velocity: -2.0
+          base_angular_velocity: -0.05
+          joint_vel: -0.001
+          joint_acc: -2.5e-7
+          energy: -2e-5
+          dof_pos_limits: -5.0
+          joint_deviation_legs: -0.7
+          joint_deviation_hip_knee: -0.8
+          feet_contact_number: 0.5
+          feet_slide: -0.03
+          feet_clearance: 0.3
+          stand_still: -3.0
+          undesired_contacts: -0.3
+        monitor:
+          action_rate_threshold: -1.0
+          min_iterations: 3000
+
+      - id: p3_fine
+        name: "P3 Fine"
+        max_iterations: 15000
+        env:
+          commands:
+            resampling_time_range: [4.0, 6.0]
+            rel_standing_envs: 0.20
+          events:
+            interval_force_torque:
+              interval_range_s: [4.0, 6.0]
+              force_range: [-8.0, 8.0]
+              torque_range: [-2.0, 2.0]
+            reset_base:
+              velocity_range:
+                x: [-0.6, 0.6]
+                y: [-0.6, 0.6]
+                z: [-0.3, 0.3]
+                roll: [-0.4, 0.4]
+                pitch: [-0.4, 0.4]
+                yaw: [-0.4, 0.4]
+            push_robot:
+              interval_range_s: [4.5, 7.0]
+              velocity_range:
+                x: [-0.5, 0.5]
+                y: [-0.3, 0.3]
+          terrain_generator:
+            sub_terrains:
+              flat:
+                type: MeshPlaneTerrainCfg
+                proportion: 0.85
+              random_grid:
+                type: RandomGridTerrainCfg
+                proportion: 0.15
+                difficulty_range: [0.0, 0.25]
+        ppo:
+          learning_rate: 3.0e-4
+          entropy_coef: 0.008
+        rewards:
+          track_lin_vel_xy: 2.0
+          track_ang_vel_z: 1.0
+          alive: 0.20
+          base_height: -10.0
+          flat_orientation_l2: -5.0
+          action_rate_l1: -0.05
+          base_linear_velocity: -2.0
+          base_angular_velocity: -0.05
+          joint_vel: -0.001
+          joint_acc: -2.5e-7
+          energy: -2e-5
+          dof_pos_limits: -5.0
+          joint_deviation_legs: -0.7
+          joint_deviation_hip_knee: -0.8
+          feet_contact_number: 0.5
+          feet_slide: -0.05
+          feet_clearance: 0.5
+          stand_still: -3.5
+          undesired_contacts: -0.5
+        monitor:
+          action_rate_threshold: -1.0
+          min_iterations: 4000

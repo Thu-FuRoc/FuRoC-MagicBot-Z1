@@ -54,7 +54,14 @@
         "checkpoint": "models/B_custom_curriculum/p2_coarse/p2_coarse_model_4000.pt",
         "jit_policy": "models/B_custom_curriculum/p2_coarse/p2_coarse_policy.pt"
       },
-      "source": "legacy_phase_head_snapshot"
+      "source": "legacy_phase_head_snapshot",
+      "time_out": 0.957061767578125,
+      "ep_len": 950.3800048828125,
+      "bad_ori": 0.042938232421875,
+      "vel_err": 0.370881050825119,
+      "reward": 27.586048126220703,
+      "metrics_updated_at": "2026-05-22T09:19:50.767886",
+      "metrics_source": "remote_monitor_report"
     },
     {
       "id": "p2_fine_old",
@@ -91,7 +98,7 @@
       "id": "p2_fine",
       "phase_id": "p2",
       "phase_name": "Flat — Velocity Tracking + Symmetry",
-      "run_dir": "2026-05-15_19-58-42_p2_fine",
+      "run_dir": "2026-05-18_19-35-30_p2_fine",
       "status": "COMPLETE",
       "best_model": "model_4800.pt",
       "best_iteration": 4800,
@@ -102,24 +109,38 @@
         "checkpoint": "models/B_custom_curriculum/p2_fine/p2_fine_model_4800.pt",
         "jit_policy": "models/B_custom_curriculum/p2_fine/p2_fine_policy.pt"
       },
-      "source": "legacy_phase_head_snapshot"
+      "source": "legacy_phase_head_snapshot",
+      "time_out": 0.9719035029411316,
+      "ep_len": 980.1400146484375,
+      "bad_ori": 0.02736409567296505,
+      "vel_err": 0.3770323693752289,
+      "reward": 24.586925506591797,
+      "metrics_updated_at": "2026-05-22T09:19:53.055252",
+      "metrics_source": "remote_monitor_report"
     },
     {
       "id": "p3_coarse",
       "phase_id": "p3",
       "phase_name": "Gentle Terrain",
       "run_dir": "2026-05-20_06-01-49_p3_coarse",
-      "status": "COMPLETE",
+      "status": "ARCHIVED",
+      "archived_reason": "Config difficulty too high (reward 17.71 vs P2 Fine 38.21). Retraining from P2 Fine with reduced difficulty.",
       "best_model": "model_6100.pt",
       "best_iteration": 6100,
       "best_reward": 17.71,
       "peak_reward": 22.68,
-      "note": "Current retained baseline for continuation. Replaces deprecated p3_fine reference.",
       "local_models": {
         "checkpoint": "models/B_custom_curriculum/p3_coarse/p3_coarse_model_6100.pt",
         "jit_policy": null
       },
-      "source": "legacy_best_models_snapshot"
+      "source": "legacy_best_models_snapshot",
+      "time_out": 0.641571044921875,
+      "ep_len": 556.3699951171875,
+      "bad_ori": 0.358428955078125,
+      "vel_err": 0.35669073462486267,
+      "reward": 15.594313621520996,
+      "metrics_updated_at": "2026-05-22T09:20:06.133032",
+      "metrics_source": "remote_monitor_report"
     }
   ]
 }

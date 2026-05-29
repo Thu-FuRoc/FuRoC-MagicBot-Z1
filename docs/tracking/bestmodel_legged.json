@@ -17,7 +17,13 @@
         "checkpoint": "models/A_legged_gym/p1/p1_model_3700.pt",
         "jit_policy": "models/A_legged_gym/p1/p1_policy.pt"
       },
-      "source": "legacy_best_models_snapshot"
+      "source": "legacy_best_models_snapshot",
+      "time_out": 0.9588114619255066,
+      "ep_len": 971.1799926757812,
+      "vel_err": 0.7941880226135254,
+      "reward": 6.527942180633545,
+      "metrics_updated_at": "2026-05-22T09:20:20.392131",
+      "metrics_source": "remote_monitor_report"
     },
     {
       "id": "p2",
@@ -31,7 +37,13 @@
         "checkpoint": "models/A_legged_gym/p2/p2_model_8300.pt",
         "jit_policy": "models/A_legged_gym/p2/p2_policy.pt"
       },
-      "source": "legacy_best_models_snapshot"
+      "source": "legacy_best_models_snapshot",
+      "time_out": 0.9884237051010132,
+      "ep_len": 980.6300048828125,
+      "vel_err": 0.26790326833724976,
+      "reward": 23.083925247192383,
+      "metrics_updated_at": "2026-05-22T09:20:26.185002",
+      "metrics_source": "remote_monitor_report"
     },
     {
       "id": "p3",
@@ -45,7 +57,13 @@
         "checkpoint": "models/A_legged_gym/p3/p3_model_7900.pt",
         "jit_policy": "models/A_legged_gym/p3/p3_policy.pt"
       },
-      "source": "legacy_best_models_snapshot"
+      "source": "legacy_best_models_snapshot",
+      "time_out": 0.8517863154411316,
+      "ep_len": 878.989990234375,
+      "vel_err": 1.0488879680633545,
+      "reward": -8.887858390808105,
+      "metrics_updated_at": "2026-05-22T09:20:28.642017",
+      "metrics_source": "remote_monitor_report"
     }
   ]
 }

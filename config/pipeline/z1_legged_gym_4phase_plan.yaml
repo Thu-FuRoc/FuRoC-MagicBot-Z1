@@ -1,0 +1,406 @@
+# MagicBot Z1 12DOF - 4-Phase Training Plan v2
+# Aligned with Isaac Lab H1/G1 community best practices
+# Strategy: start minimal -> gradually increase difficulty
+#
+# Key changes from v1 (5-phase plan):
+#   - Termination: illegal_contact(pelvis) + time_out (no bad_orientation/base_height)
+#   - termination_penalty = -200 (replaces weak alive=0.15)
+#   - Friction fixed (0.8, 1.0), no mass randomization, no push disturbance in early phases
+#   - Zero velocity reset (cold start from default pose)
+#   - Hip pitch / knee joints UNCONSTRAINED (weight=0.0) — critical for locomotion
+#   - feet_air_time added for bipedal gait reward
+#   - action_rate 10x lower (-0.01 vs -0.1)
+#   - base_height reward gradually increased (-1.0 -> -3.0)
+#
+# Usage:
+#   python -m automation.phase_orchestrator --plan training_plans/z1_legged_gym_4phase_plan.yaml
+#   python -m automation.phase_orchestrator --plan training_plans/z1_legged_gym_4phase_plan.yaml --start-from p1
+#   python -m automation.phase_orchestrator --plan training_plans/z1_legged_gym_4phase_plan.yaml --dry-run
+
+plan_name: z1_4phase_v2
+num_gpus: 4
+num_envs: 4096
+task: Magiclab-Z1-12dof-Velocity
+
+defaults:
+  env:
+    decimation: 10
+    episode_length_s: 20.0
+    sim_dt: 0.002
+    action_scale: 0.25
+    target_height: 0.7
+    # New termination system — aligned with H1/G1
+    terminations:
+      time_out: true
+      bad_orientation: null               # disabled — too aggressive for early training
+      base_height: null                   # disabled — use reward instead
+      illegal_contact:                    # pelvis touchdown = terminate
+        threshold: 1.0
+    # Events — minimal defaults (aligned with H1 cold-start)
+    events:
+      startup:
+        physics_material:
+          friction_range: [0.8, 1.0]      # narrow, stable friction
+        add_base_mass: null               # disable mass randomization
+        randomize_others_mass: null       # disable
+      reset:
+        reset_robot_joints:
+          velocity_range: [0.0, 0.0]      # zero velocity reset
+      push_robot: null                    # disable push disturbance
+      base_external_force_torque: null    # disable reset external force
+  ppo:
+    num_steps_per_env: 24
+    save_interval: 100
+    empirical_normalization: false
+    policy:
+      init_noise_std: 1.0
+      actor_hidden_dims: [512, 256, 128]
+      critic_hidden_dims: [512, 256, 128]
+      activation: elu
+    algorithm:
+      value_loss_coef: 1.0
+      use_clipped_value_loss: true
+      clip_param: 0.2
+      num_learning_epochs: 5
+      num_mini_batches: 4
+      schedule: adaptive
+      gamma: 0.99
+      lam: 0.95
+      desired_kl: 0.01
+      max_grad_norm: 1.0
+  monitor:
+    action_rate_threshold: -1.0
+    min_iterations: 2000
+  rollback:
+    reward_threshold: 0.95
+    max_retries: 1
+  post_phase:
+    enable_jit_export: true
+    enable_mujoco_video: true
+    enable_isaac_video: true
+    enable_video_labels: true
+    enable_plots: true
+    isaac:
+      video_length: 1000
+      num_envs: 16
+    mujoco:
+      num_steps: 1000
+      vel_sweep: true
+      vel_step: 0.1
+
+phases:
+  # ── Phase 1: Flat — Standing & Balance (8000 iter) ── #
+  - id: p1
+    name: "Flat — Standing & Balance"
+    terrain: flat
+    env:
+      terrain_type: plane
+      terrain_generator: null
+    sub_phases:
+      - id: p1
+        name: "Flat — Standing & Balance"
+        max_iterations: 8000
+        env:
+          commands:
+            ranges:
+              lin_vel_x: [-0.1, 0.1]
+              lin_vel_y: [-0.1, 0.1]
+              ang_vel_z: [-0.1, 0.1]
+            limit_ranges:
+              lin_vel_x: [-0.1, 0.1]
+              lin_vel_y: [-0.1, 0.1]
+              ang_vel_z: [-0.1, 0.1]
+        ppo:
+          learning_rate: 1.0e-3
+          entropy_coef: 0.01
+        rewards:
+          # Task rewards
+          track_lin_vel_xy: 0.0               # no velocity tracking yet
+          track_ang_vel_z: 0.0
+          alive: 0.5                          # standing reward
+          termination_penalty: -200.0         # H1/G1 style penalty
+          # Orientation & height (gentle)
+          flat_orientation_l2: -1.0           # H1 = -1.0
+          base_height: -1.0                   # gentle (was -10.0)
+          # Regularization (light)
+          action_rate_l1: -0.01               # H1 = -0.01 (was -0.1)
+          dof_pos_limits: -1.0               # H1 = -1.0 (was -5.0)
+          energy: -1.0e-5                     # gentle energy penalty
+          # Joint deviation
+          joint_deviation_legs: -0.2          # H1 hip roll/yaw deviation
+          joint_deviation_hip_knee: 0.0       # UNCONSTRAINED — critical for locomotion
+          # Bipedal gait
+          feet_air_time: 0.25                # H1 bipedal gait reward
+          feet_slide: -0.25                  # H1 foot sliding penalty
+          # Disabled
+          base_linear_velocity: 0.0
+          base_angular_velocity: 0.0
+          joint_vel: 0.0
+          joint_acc: 0.0
+          feet_contact_number: 0.0
+          feet_clearance: 0.0
+          stand_still: 0.0
+          undesired_contacts: 0.0
+        monitor:
+          action_rate_threshold: -0.5
+          min_iterations: 3000
+
+  # ── Phase 2: Flat — Velocity Tracking (15000 iter) ── #
+  - id: p2
+    name: "Flat — Velocity Tracking"
+    terrain: flat
+    env:
+      terrain_type: plane
+      terrain_generator: null
+    sub_phases:
+      - id: p2
+        name: "Flat — Velocity Tracking"
+        max_iterations: 15000
+        env:
+          commands:
+            ranges:
+              lin_vel_x: [0.0, 0.8]
+              lin_vel_y: [-0.3, 0.3]
+              ang_vel_z: [-0.5, 0.5]
+            limit_ranges:
+              lin_vel_x: [0.0, 1.0]
+              lin_vel_y: [-0.5, 0.5]
+              ang_vel_z: [-1.0, 1.0]
+        ppo:
+          learning_rate: 5.0e-4
+          entropy_coef: 0.01
+        rewards:
+          # Task rewards — enable velocity tracking
+          track_lin_vel_xy: 1.0
+          track_ang_vel_z: 0.5
+          alive: 0.3
+          termination_penalty: -200.0
+          # Orientation & height
+          flat_orientation_l2: -1.0
+          base_height: -1.0
+          # Regularization
+          action_rate_l1: -0.01
+          dof_pos_limits: -1.0
+          energy: -1.0e-5
+          # Joint deviation
+          joint_deviation_legs: -0.2
+          joint_deviation_hip_knee: 0.0       # still unconstrained
+          # Bipedal gait
+          feet_air_time: 0.25
+          feet_slide: -0.25
+          # Stand still penalty — added
+          stand_still: -1.0
+          # Disabled
+          base_linear_velocity: 0.0
+          base_angular_velocity: 0.0
+          joint_vel: 0.0
+          joint_acc: 0.0
+          feet_contact_number: 0.0
+          feet_clearance: 0.0
+          undesired_contacts: 0.0
+        monitor:
+          action_rate_threshold: -0.7
+          min_iterations: 5000
+
+  # ── Phase 3: Progressive Terrain (20000 iter) ── #
+  - id: p3
+    name: "Progressive Terrain"
+    terrain: gentle
+    env:
+      terrain_type: generator
+      terminations:
+        time_out: true
+        bad_orientation: null
+        base_height: null
+        illegal_contact:
+          threshold: 1.0
+      events:
+        startup:
+          physics_material:
+            friction_range: [0.6, 1.2]    # slight randomization
+        reset:
+          reset_robot_joints:
+            velocity_range: [0.0, 0.0]
+        push_robot:
+          interval_range_s: [8.0, 12.0]
+          velocity_range:
+            x: [-0.3, 0.3]
+            y: [-0.3, 0.3]
+        base_external_force_torque: null
+      commands:
+        ranges:
+          lin_vel_x: [0.0, 1.0]
+          lin_vel_y: [-0.5, 0.5]
+          ang_vel_z: [-1.0, 1.0]
+        limit_ranges:
+          lin_vel_x: [0.0, 1.0]
+          lin_vel_y: [-0.5, 0.5]
+          ang_vel_z: [-1.0, 1.0]
+        resampling_time_range: [4.0, 7.0]
+        rel_standing_envs: 0.15
+      terrain_generator:
+        size: [8.0, 8.0]
+        border_width: 20.0
+        num_rows: 9
+        num_cols: 21
+        horizontal_scale: 0.1
+        vertical_scale: 0.005
+        slope_threshold: 0.75
+        use_cache: false
+        sub_terrains:
+          flat:
+            type: MeshPlaneTerrainCfg
+            proportion: 0.8
+          random_grid:
+            type: RandomGridTerrainCfg
+            proportion: 0.2
+            difficulty_range: [0.0, 0.25]
+    sub_phases:
+      - id: p3
+        name: "Progressive Terrain"
+        max_iterations: 20000
+        ppo:
+          learning_rate: 3.0e-4
+          entropy_coef: 0.01
+        rewards:
+          # Task rewards
+          track_lin_vel_xy: 1.5
+          track_ang_vel_z: 0.75
+          alive: 0.2
+          termination_penalty: -200.0
+          # Orientation & height — stronger
+          flat_orientation_l2: -2.0
+          base_height: -2.0
+          # Regularization
+          action_rate_l1: -0.01
+          dof_pos_limits: -1.0
+          energy: -1.0e-5
+          # Joint deviation
+          joint_deviation_legs: -0.2
+          joint_deviation_hip_knee: 0.0       # still unconstrained
+          # Bipedal gait
+          feet_air_time: 0.25
+          feet_slide: -0.25
+          # Added penalties
+          stand_still: -1.0
+          undesired_contacts: -1.0
+          feet_clearance: 0.5
+          # Disabled
+          base_linear_velocity: 0.0
+          base_angular_velocity: 0.0
+          joint_vel: 0.0
+          joint_acc: 0.0
+          feet_contact_number: 0.0
+        monitor:
+          action_rate_threshold: -1.0
+          min_iterations: 8000
+
+  # ── Phase 4: Rough Terrain (30000 iter) ── #
+  - id: p4
+    name: "Rough Terrain"
+    terrain: rough
+    env:
+      terrain_type: generator
+      terminations:
+        time_out: true
+        bad_orientation:
+          limit_angle: 1.2               # optional: relaxed orientation termination
+        base_height: null
+        illegal_contact:
+          threshold: 1.0
+      events:
+        startup:
+          physics_material:
+            friction_range: [0.3, 1.5]   # wider randomization
+          add_base_mass:
+            scale_range: [0.8, 1.2]      # gentle mass randomization
+          randomize_others_mass: null     # still disabled
+        reset:
+          reset_robot_joints:
+            velocity_range: [0.0, 0.0]    # still cold start
+        push_robot:
+          interval_range_s: [4.0, 6.0]
+          velocity_range:
+            x: [-0.8, 0.8]
+            y: [-0.6, 0.6]
+        base_external_force_torque: null
+      commands:
+        ranges:
+          lin_vel_x: [0.0, 1.2]
+          lin_vel_y: [-0.5, 0.5]
+          ang_vel_z: [-1.0, 1.0]
+        limit_ranges:
+          lin_vel_x: [0.0, 1.2]
+          lin_vel_y: [-0.5, 0.5]
+          ang_vel_z: [-1.0, 1.0]
+        resampling_time_range: [3.0, 5.0]
+        rel_standing_envs: 0.25
+      terrain_generator:
+        size: [8.0, 8.0]
+        border_width: 20.0
+        num_rows: 9
+        num_cols: 21
+        horizontal_scale: 0.1
+        vertical_scale: 0.005
+        slope_threshold: 0.75
+        use_cache: false
+        difficulty_range: [0.0, 1.0]
+        sub_terrains:
+          flat:
+            type: MeshPlaneTerrainCfg
+            proportion: 0.4
+          random_grid:
+            type: RandomGridTerrainCfg
+            proportion: 0.25
+            difficulty_range: [0.0, 0.5]
+          stairs:
+            type: StairsTerrainCfg
+            proportion: 0.15
+            difficulty_range: [0.0, 0.3]
+          gap:
+            type: GapTerrainCfg
+            proportion: 0.1
+            difficulty_range: [0.0, 0.2]
+          boxes:
+            type: BoxesTerrainCfg
+            proportion: 0.1
+            difficulty_range: [0.0, 0.2]
+    sub_phases:
+      - id: p4
+        name: "Rough Terrain"
+        max_iterations: 30000
+        ppo:
+          learning_rate: 1.0e-4
+          entropy_coef: 0.01
+        rewards:
+          # Task rewards
+          track_lin_vel_xy: 2.0
+          track_ang_vel_z: 1.0
+          alive: 0.15
+          termination_penalty: -200.0
+          # Orientation & height — strong
+          flat_orientation_l2: -3.0
+          base_height: -3.0
+          # Regularization — moderate
+          action_rate_l1: -0.02
+          dof_pos_limits: -2.0
+          energy: -1.0e-5
+          # Joint deviation
+          joint_deviation_legs: -0.2
+          joint_deviation_hip_knee: 0.0       # still unconstrained
+          # Bipedal gait
+          feet_air_time: 0.25
+          feet_slide: -0.3
+          # Penalties — full strength
+          stand_still: -2.5
+          undesired_contacts: -1.5
+          feet_clearance: 0.5
+          # Disabled
+          base_linear_velocity: 0.0
+          base_angular_velocity: 0.0
+          joint_vel: 0.0
+          joint_acc: 0.0
+          feet_contact_number: 0.0
+        monitor:
+          action_rate_threshold: -1.2
+          min_iterations: 10000
