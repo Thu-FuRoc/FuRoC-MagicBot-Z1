@@ -7,7 +7,7 @@ Three parallel training tracks:
 | Track | Method | Status |
 | --- | --- | --- |
 | **A. Legged Gym** | Baseline PPO on flat/rough terrain | Done |
-| **B. Custom Curriculum** | 5-phase curriculum (Flat → Gentle → Stairs) | In progress |
+| **B. Custom Curriculum** | 5-phase curriculum (Flat → Gentle → Stairs) | P3 in progress |
 | **C. AMP** | Adversarial Motion Priors | Planned (separate branch) |
 
 ---
@@ -40,7 +40,7 @@ Pre-trained policies: `models/A_legged_gym/p{1,2,3}/`
 | --- | --- | --- | --- | --- |
 | P1 | Flat | Bootstrap standing | coarse → fine | Done ✅ |
 | P2 | Flat | Velocity tracking | coarse → fine | Done ✅ |
-| P3 | Gentle terrain (flat + random grid) | Terrain walking | coarse → fine | In progress 🔄 |
+| P3 | Gentle terrain (flat + random grid) | Terrain walking | coarse → fine | Coarse done ✅ · Fine in progress 🔄 |
 | P4 | Stairs (flat + stairs + random grid) | Stair climbing | coarse → fine | Pending |
 
 ### Demo
@@ -48,10 +48,6 @@ Pre-trained policies: `models/A_legged_gym/p{1,2,3}/`
 **P1–P2 Pipeline Demo** — P1 Coarse → P1 Fine → P2 Coarse → P2 Fine. Left: Isaac Lab simulation. Right: MuJoCo sim2sim validation.
 
 ![P1-P2 Pipeline Demo](docs/github_readme/B_custom_curriculum/pipeline_p1p2_demo.gif)
-
-**P3 Gentle Terrain Walking** — Policy trained on 90% flat + 10% gentle random grid terrain.
-
-![P3 Gentle Terrain](docs/github_readme/B_custom_curriculum/p3_demo.gif)
 
 ### Pre-trained Models
 
@@ -61,8 +57,8 @@ Pre-trained policies: `models/A_legged_gym/p{1,2,3}/`
 | P1 Fine | Standing | `models/B_custom_curriculum/p1_fine/p1_fine_policy.pt` | 5.54 | Fine-tuned stable standing on flat terrain |
 | P2 Coarse | Locomotion | `models/B_custom_curriculum/p2_coarse/p2_coarse_policy.pt` | 33.11 | Initial velocity tracking on flat terrain |
 | P2 Fine | Locomotion | `models/B_custom_curriculum/p2_fine/p2_fine_policy.pt` | 38.21 | Fine-tuned velocity tracking with gait shaping |
-| P3 Coarse | Terrain Walk | — | 51.70 | Gentle terrain (90% flat + 10% grid) |
-| P3 Fine | Terrain Walk | — | *Training* | Fine-tuned gentle terrain (85% flat + 15% grid) |
+| P3 Coarse | Terrain Walk | — | 51.70 | Gentle terrain (90% flat + 10% grid) · JIT pending |
+| P3 Fine | Terrain Walk | — | *Training* | Fine-tuned gentle terrain (85% flat + 15% grid) · In progress |
 | P4 Coarse | Stair Climb | — | *Pending* | Stair terrain intro (60% flat + 40% stairs) |
 | P4 Fine | Stair Climb | — | *Pending* | Stair mastery (40% flat + 50% stairs + 10% grid) |
 

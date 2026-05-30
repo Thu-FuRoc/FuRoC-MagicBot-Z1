@@ -1,11 +1,11 @@
 {
   "source": "5-phase-pipeline",
-  "plan": "z1_custom_5phase_plan.yaml",
-  "updated_at": "2026-05-30T14:00:00+08:00",
+  "plan": "z1_5phase_plan.yaml",
+  "updated_at": "2026-05-30T06:47:20+00:00",
   "phases": [
     {
       "phase_id": "p1",
-      "phase_name": "Flat \u2014 Bootstrap",
+      "phase_name": "Flat — Bootstrap",
       "status": "COMPLETE",
       "sub_phases": [],
       "phase_best": "p1/model_3700.pt",
@@ -13,12 +13,12 @@
     },
     {
       "phase_id": "p2",
-      "phase_name": "Flat \u2014 Velocity Tracking",
+      "phase_name": "Flat — Velocity Tracking",
       "status": "COMPLETE",
       "sub_phases": [
         {
           "id": "p2_fine",
-          "run_dir": "2026-05-18_19-35-30_p2_fine",
+          "run_dir": "p2_fine",
           "best_model": "model_4800.pt",
           "best_iteration": 4800,
           "best_reward": 38.21,
@@ -36,16 +36,37 @@
       "sub_phases": [
         {
           "id": "p3_coarse",
-          "run_dir": "2026-05-29_17-45-26_p3_coarse",
+          "run_dir": "p3_coarse",
           "best_model": "model_10700.pt",
           "best_iteration": 10700,
           "best_reward": 51.7,
           "peak_reward": 51.7,
-          "status": "COMPLETE"
+          "status": "UNKNOWN"
+        },
+        {
+          "id": "p3_fine",
+          "run_dir": "2026-05-30_04-23-29_p3_fine",
+          "best_model": null,
+          "best_iteration": null,
+          "best_reward": null,
+          "peak_reward": null,
+          "status": "RUNNING"
         }
       ],
       "phase_best": "p3_coarse/model_10700.pt",
       "phase_best_reward": 51.7
+    },
+    {
+      "phase_id": "p4",
+      "phase_name": "Rough Terrain",
+      "sub_phases": [],
+      "status": "PLANNED"
+    },
+    {
+      "phase_id": "p5",
+      "phase_name": "Full Terrain + Polish",
+      "sub_phases": [],
+      "status": "PLANNED"
     }
   ],
   "archived_runs": [
@@ -88,6 +109,38 @@
       "best_iteration": null,
       "best_reward": null,
       "note": "Attempted to retrain p2_fine with joint_mirror without redoing p2_coarse. Abandoned in favor of full pipeline restart."
+    },
+    {
+      "id": "p3_coarse",
+      "archived_reason": "Pipeline restart from p2_coarse invalidated all downstream phases",
+      "original_status": "COMPLETE",
+      "run_dir": "2026-05-12_11-12-52_p3_coarse",
+      "best_model": "model_5800.pt",
+      "best_iteration": 5800,
+      "best_reward": 36.37,
+      "peak_reward": 36.37,
+      "time_out": 85.8,
+      "bad_orientation": 14.2,
+      "vel_error": 0.39,
+      "local_models": {
+        "checkpoint": "models/p/p3_coarse/p3_coarse_model_5800.pt",
+        "jit_policy": "models/p/p3_coarse/p3_coarse_policy_m5800.pt"
+      },
+      "video": "videos/p/p3_coarse/20260514_1630/"
+    },
+    {
+      "id": "p3_coarse_attempt2",
+      "archived_reason": "Config difficulty too high (reward 17.71 vs P2 Fine 38.21). Retraining with reduced difficulty.",
+      "original_status": "ARCHIVED",
+      "run_dir": "2026-05-20_06-01-49_p3_coarse",
+      "best_model": "model_6100.pt",
+      "best_iteration": 6100,
+      "best_reward": 17.71,
+      "peak_reward": 22.68,
+      "local_models": {
+        "checkpoint": "models/B_custom_curriculum/p3_coarse/p3_coarse_model_6100.pt",
+        "jit_policy": null
+      }
     },
     {
       "id": "p3_fine",

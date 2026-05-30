@@ -85,26 +85,27 @@
   <text x="580" y="231" font-size="14" fill="#22c55e">&#10003;</text>
 
   <!-- Resume arrow P2_F → P3_C -->
-  <path d="M 402 253 L 402 275 Q 402 285 392 285 L 218 285 Q 207 285 207 295 L 207 310" stroke="#22c55e" stroke-width="2" fill="none" stroke-dasharray="5,3" marker-end="url(#arrowGreen)"/>
+  <path d="M 402 253 L 402 275 Q 402 285 392 285 L 218 285 Q 207 285 207 295 L 207 310" stroke="#22c55e" stroke-width="2.5" fill="none" stroke-dasharray="5,3" marker-end="url(#arrowGreen)"/>
 
   <!-- ============ P3 Row (y=310) ============ -->
   <text x="50" y="330" font-size="12" font-weight="700" fill="#1e293b">P3</text>
   <text x="50" y="344" font-size="9" fill="#64748b">Gentle Terrain</text>
-  <!-- P3 Coarse (IN PROGRESS) -->
+  <!-- P3 Coarse (DONE) -->
   <g filter="url(#shadow)">
-    <rect x="130" y="310" width="155" height="48" rx="8" fill="url(#activeGrad)"/>
+    <rect x="130" y="310" width="155" height="48" rx="8" fill="url(#doneGrad)"/>
     <text x="207" y="332" text-anchor="middle" font-size="13" font-weight="700" fill="white">P3 Coarse</text>
     <text x="207" y="348" text-anchor="middle" font-size="9" fill="rgba(255,255,255,0.85)">Terrain Walk</text>
   </g>
   <line x1="285" y1="334" x2="320" y2="334" stroke="#94a3b8" stroke-width="2" marker-end="url(#arrow)"/>
-  <!-- P3 Fine (PLANNED) -->
+  <!-- P3 Fine (IN PROGRESS) -->
   <g filter="url(#shadow)">
-    <rect x="325" y="310" width="155" height="48" rx="8" fill="url(#plannedGrad)"/>
+    <rect x="325" y="310" width="155" height="48" rx="8" fill="url(#activeGrad)"/>
     <text x="402" y="332" text-anchor="middle" font-size="13" font-weight="700" fill="white">P3 Fine</text>
     <text x="402" y="348" text-anchor="middle" font-size="9" fill="rgba(255,255,255,0.85)">Terrain Walk</text>
   </g>
-  <rect x="510" y="318" width="140" height="22" rx="11" fill="#dbeafe" stroke="#93c5fd"/>
-  <text x="580" y="333" text-anchor="middle" font-size="9" font-weight="600" fill="#1e40af">90/10 → 85/15 Grid</text>
+  <rect x="510" y="318" width="50" height="22" rx="11" fill="#dcfce7" stroke="#86efac"/>
+  <text x="535" y="333" text-anchor="middle" font-size="9" font-weight="600" fill="#166534">GRID</text>
+  <text x="580" y="336" font-size="14" fill="#3b82f6">&#9679;</text>
 
   <!-- Hardware badge -->
   <rect x="640" y="290" width="170" height="48" rx="8" fill="#0f172a"/>

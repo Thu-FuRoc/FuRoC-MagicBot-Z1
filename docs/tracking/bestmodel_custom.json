@@ -82,21 +82,6 @@
     {
       "id": "p2_fine",
       "phase_id": "p2",
-      "run_dir": null,
-      "status": "LOCAL_ONLY",
-      "best_model": "model_3600.pt",
-      "best_iteration": null,
-      "best_reward": null,
-      "peak_reward": null,
-      "local_models": {
-        "checkpoint": "models/B_custom_curriculum/p2_fine/p2_fine_model_3600.pt",
-        "jit_policy": "models/B_custom_curriculum/p2_fine/p2_fine_policy.pt"
-      },
-      "source": "local_model_scan"
-    },
-    {
-      "id": "p2_fine",
-      "phase_id": "p2",
       "phase_name": "Flat — Velocity Tracking + Symmetry",
       "run_dir": "2026-05-18_19-35-30_p2_fine",
       "status": "COMPLETE",

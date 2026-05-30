@@ -63,12 +63,18 @@ VEL_LINE_RE = re.compile(r"\[CMD\]\s+vel=\(([-+0-9.]+),\s*([-+0-9.]+),\s*([-+0-9
 
 
 PRESET_RUNTIME_BINDINGS: dict[str, dict[str, object]] = {
+    # B_custom_curriculum presets (coarse/fine suffix)
     "p1_coarse": {"phase": "p1_coarse", "terrain": "", "flat": False},
     "p1_fine": {"phase": "p1_fine", "terrain": "", "flat": False},
     "p2_coarse": {"phase": "p2_coarse", "terrain": "", "flat": False},
     "p2_fine": {"phase": "p2_fine", "terrain": "", "flat": False},
     "p3_coarse": {"phase": "p3_coarse", "terrain": "p3_coarse", "flat": False},
     "p3_fine": {"phase": "p3_fine", "terrain": "p3_fine", "flat": False},
+    # A_legged_gym presets (no coarse/fine suffix)
+    "p1": {"phase": "p1", "terrain": "", "flat": True},
+    "p2": {"phase": "p2", "terrain": "", "flat": False},
+    "p3": {"phase": "p3", "terrain": "p3", "flat": False},
+    "p4": {"phase": "p4", "terrain": "p4", "flat": False},
 }
 
 

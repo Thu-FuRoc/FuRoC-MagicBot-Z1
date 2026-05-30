@@ -79,3 +79,6 @@ data/
 # Temp test files
 tmp_*
 
+# Virtual environments
+ops/gpu_gateway/.venv/
+
