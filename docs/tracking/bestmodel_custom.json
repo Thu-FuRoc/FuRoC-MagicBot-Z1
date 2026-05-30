@@ -1,7 +1,7 @@
 {
   "source": "local-model-baseline",
   "category": "bestmodel_custom",
-  "updated_at": "2026-05-26T11:34:07.525450",
+  "updated_at": "2026-05-30T10:35:00+08:00",
   "model_root": "models/B_custom_curriculum",
   "total_entries": 11,
   "models": [
@@ -122,25 +122,25 @@
       "id": "p3_coarse",
       "phase_id": "p3",
       "phase_name": "Gentle Terrain",
-      "run_dir": "2026-05-20_06-01-49_p3_coarse",
-      "status": "ARCHIVED",
-      "archived_reason": "Config difficulty too high (reward 17.71 vs P2 Fine 38.21). Retraining from P2 Fine with reduced difficulty.",
-      "best_model": "model_6100.pt",
-      "best_iteration": 6100,
-      "best_reward": 17.71,
-      "peak_reward": 22.68,
+      "run_dir": "2026-05-29_17-45-26_p3_coarse",
+      "status": "COMPLETE",
+      "best_model": "model_10700.pt",
+      "best_iteration": 10700,
+      "best_reward": 51.70,
+      "peak_reward": 51.70,
+      "completed_at": "2026-05-29T23:12:30+08:00",
       "local_models": {
-        "checkpoint": "models/B_custom_curriculum/p3_coarse/p3_coarse_model_6100.pt",
+        "checkpoint": "models/B_custom_curriculum/p3_coarse/p3_coarse_model_10700.pt",
         "jit_policy": null
       },
-      "source": "legacy_best_models_snapshot",
-      "time_out": 0.641571044921875,
-      "ep_len": 556.3699951171875,
-      "bad_ori": 0.358428955078125,
-      "vel_err": 0.35669073462486267,
-      "reward": 15.594313621520996,
-      "metrics_updated_at": "2026-05-22T09:20:06.133032",
-      "metrics_source": "remote_monitor_report"
+      "source": "manual_adopt_from_orchestrator_misfire",
+      "time_out": 0.7251,
+      "ep_len": 774.14,
+      "bad_ori": 0.2749,
+      "vel_err": 0.14,
+      "reward": 43.96,
+      "metrics_updated_at": "2026-05-30T10:35:00+08:00",
+      "metrics_source": "final_iteration_log"
     }
   ]
 }

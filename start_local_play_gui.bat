@@ -1,7 +1,10 @@
 @echo off
 setlocal
 
-cd /d "%~dp0"
+set "SCRIPT_DIR=%~dp0"
+set "PROJECT_ROOT=%SCRIPT_DIR%"
+
+cd /d "%PROJECT_ROOT%"
 
 where python >nul 2>nul
 if errorlevel 1 (
@@ -11,7 +14,7 @@ if errorlevel 1 (
   exit /b 1
 )
 
-python .\scripts\local_play_gui.py
+python "%PROJECT_ROOT%scripts\local_play_gui.py"
 set "EXIT_CODE=%ERRORLEVEL%"
 
 if not "%EXIT_CODE%"=="0" (

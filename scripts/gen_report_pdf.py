@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Generate a single-page A4 PDF report from Z1 training plots + analysis.
 
-Reads 4 plot PNGs and best_models.json, generates a .tex file,
+Reads 4 plot PNGs and categorized best-model summaries, generates a .tex file,
 compiles to PDF, and cleans intermediate files.
 
 Usage:
@@ -48,12 +48,38 @@ PLOT_FILES = [
     "4_efficiency.png",
 ]
 
+BEST_MODEL_FILES = [
+    "best_models_legged.json",
+    "best_models_custom.json",
+    "best_models_AMP.json",
+]
 
-def load_best_models(json_path: str) -> dict:
-    """Load best_models.json and find the model entry for the given alias."""
-    with open(json_path, "r", encoding="utf-8") as f:
-        data = json.load(f)
-    return data
+
+def load_best_models(project_dir: Path) -> dict:
+    """Load categorized best-model summaries and merge them for lookup."""
+    models = []
+    sources = []
+    generated_at = None
+    log_root = None
+
+    for filename in BEST_MODEL_FILES:
+        json_path = project_dir / filename
+        if not json_path.exists():
+            continue
+        with open(json_path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        models.extend(data.get("models", []))
+        sources.append(filename)
+        generated_at = max(filter(None, [generated_at, data.get("generated_at")]), default=None)
+        if log_root is None:
+            log_root = data.get("log_root")
+
+    return {
+        "generated_at": generated_at,
+        "log_root": log_root,
+        "sources": sources,
+        "models": models,
+    }
 
 
 def fetch_remote_metrics(alias: str) -> dict | None:
@@ -583,17 +609,17 @@ def main():
             sys.exit(1)
         plot_paths[fname] = str(fpath.resolve())
 
-    # Load best_models.json
-    json_path = project_dir / "best_models.json"
-    if not json_path.exists():
-        print(f"ERROR: {json_path} not found")
+    # Load categorized best-model summaries
+    data = load_best_models(project_dir)
+    if not data["models"]:
+        print(f"ERROR: no categorized best model files found under {project_dir}")
+        print(f"Expected one or more of: {', '.join(BEST_MODEL_FILES)}")
         sys.exit(1)
 
-    data = load_best_models(str(json_path))
     model = find_model_entry(data, args.alias)
     if model is None:
         # Try fetching live metrics from RTX server
-        print(f"INFO: '{args.alias}' not in best_models.json — fetching live metrics from RTX...")
+        print(f"INFO: '{args.alias}' not in categorized best model summaries — fetching live metrics from RTX...")
         model = fetch_remote_metrics(args.alias)
         if model is None:
             print(f"WARNING: Could not fetch live metrics — generating with placeholder data.")

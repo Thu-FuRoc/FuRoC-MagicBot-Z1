@@ -1,223 +1,172 @@
 {
-  "source": "local-model-baseline",
-  "category": "bestmodel_phase",
-  "updated_at": "2026-05-26T14:23:56.328841",
-  "summary": {
-    "bestmodel_legged": {
-      "file": "docs/tracking/bestmodel_legged.json",
-      "total_entries": 3
+  "source": "5-phase-pipeline",
+  "plan": "z1_custom_5phase_plan.yaml",
+  "updated_at": "2026-05-30T14:00:00+08:00",
+  "phases": [
+    {
+      "phase_id": "p1",
+      "phase_name": "Flat \u2014 Bootstrap",
+      "status": "COMPLETE",
+      "sub_phases": [],
+      "phase_best": "p1/model_3700.pt",
+      "phase_best_reward": 7.26620140782109
     },
-    "bestmodel_custom": {
-      "file": "docs/tracking/bestmodel_custom.json",
-      "total_entries": 11
+    {
+      "phase_id": "p2",
+      "phase_name": "Flat \u2014 Velocity Tracking",
+      "status": "COMPLETE",
+      "sub_phases": [
+        {
+          "id": "p2_fine",
+          "run_dir": "2026-05-18_19-35-30_p2_fine",
+          "best_model": "model_4800.pt",
+          "best_iteration": 4800,
+          "best_reward": 38.21,
+          "peak_reward": 38.21,
+          "status": "UNKNOWN"
+        }
+      ],
+      "phase_best": "p2_fine/model_4800.pt",
+      "phase_best_reward": 38.21
     },
-    "bestmodel_AMP": {
-      "file": "docs/tracking/bestmodel_AMP.json",
-      "total_entries": 0
+    {
+      "phase_id": "p3",
+      "phase_name": "Gentle Terrain",
+      "status": "IN_PROGRESS",
+      "sub_phases": [
+        {
+          "id": "p3_coarse",
+          "run_dir": "2026-05-29_17-45-26_p3_coarse",
+          "best_model": "model_10700.pt",
+          "best_iteration": 10700,
+          "best_reward": 51.7,
+          "peak_reward": 51.7,
+          "status": "COMPLETE"
+        }
+      ],
+      "phase_best": "p3_coarse/model_10700.pt",
+      "phase_best_reward": 51.7
     }
-  },
-  "models": {
-    "legged": [
-      {
-        "id": "p1",
-        "run_dir": "2026-05-21_05-34-18_p1",
-        "status": "HEALTHY",
-        "best_model": "model_3700.pt",
-        "best_iteration": 3700,
-        "best_reward": 7.23,
-        "peak_reward": 7.98,
-        "local_models": {
-          "checkpoint": "models/A_legged_gym/p1/p1_model_3700.pt",
-          "jit_policy": "models/A_legged_gym/p1/p1_policy.pt"
-        },
-        "source": "legacy_best_models_snapshot",
-        "time_out": 0.9588114619255066,
-        "ep_len": 971.1799926757812,
-        "vel_err": 0.7941880226135254,
-        "reward": 6.527942180633545,
-        "metrics_updated_at": "2026-05-22T09:20:20.392131",
-        "metrics_source": "remote_monitor_report"
+  ],
+  "archived_runs": [
+    {
+      "id": "p2_coarse_old",
+      "archived_reason": "Replaced by new p2_coarse with unified joint_mirror pipeline (resumed from p1_fine)",
+      "original_status": "COMPLETE",
+      "run_dir": "2026-05-06_18-49-40_p2_coarse",
+      "best_model": "model_2917.pt",
+      "best_iteration": 2917,
+      "best_reward": 41.46,
+      "peak_reward": 42.68,
+      "local_models": {
+        "checkpoint": "models/p/p2_coarse/p2_coarse_model_2900.pt",
+        "jit_policy": "models/p/p2_coarse/p2_coarse_policy.pt"
       },
-      {
-        "id": "p2",
-        "run_dir": "2026-05-21_08-15-14_p2",
-        "status": "OVERFITTING",
-        "best_model": "model_8300.pt",
-        "best_iteration": 8300,
-        "best_reward": 28.09,
-        "peak_reward": 29.09,
-        "local_models": {
-          "checkpoint": "models/A_legged_gym/p2/p2_model_8300.pt",
-          "jit_policy": "models/A_legged_gym/p2/p2_policy.pt"
-        },
-        "source": "legacy_best_models_snapshot",
-        "time_out": 0.9884237051010132,
-        "ep_len": 980.6300048828125,
-        "vel_err": 0.26790326833724976,
-        "reward": 23.083925247192383,
-        "metrics_updated_at": "2026-05-22T09:20:26.185002",
-        "metrics_source": "remote_monitor_report"
+      "video": "videos/p/p2_coarse/"
+    },
+    {
+      "id": "p2_fine_old",
+      "archived_reason": "Rollback: replaced by new p2_fine training with joint_mirror reward",
+      "original_status": "COMPLETE",
+      "run_dir": "2026-05-06_19-33-51_p2_fine",
+      "best_model": "model_3168.pt",
+      "best_iteration": 3168,
+      "best_reward": 48.3,
+      "peak_reward": 49.68,
+      "local_models": {
+        "checkpoint": "models/p/p2_fine/p2_fine_model_3200.pt",
+        "jit_policy": "models/p/p2_fine/p2_fine_policy.pt"
       },
-      {
-        "id": "p3",
-        "run_dir": "2026-05-21_12-52-29_p3",
-        "status": "OVERFITTING",
-        "best_model": "model_7900.pt",
-        "best_iteration": 7900,
-        "best_reward": 32.52,
-        "peak_reward": 35.75,
-        "local_models": {
-          "checkpoint": "models/A_legged_gym/p3/p3_model_7900.pt",
-          "jit_policy": "models/A_legged_gym/p3/p3_policy.pt"
-        },
-        "source": "legacy_best_models_snapshot",
-        "time_out": 0.8517863154411316,
-        "ep_len": 878.989990234375,
-        "vel_err": 1.0488879680633545,
-        "reward": -8.887858390808105,
-        "metrics_updated_at": "2026-05-22T09:20:28.642017",
-        "metrics_source": "remote_monitor_report"
-      }
-    ],
-    "custom": [
-      {
-        "id": "p1_coarse",
-        "phase_id": "p1",
-        "phase_name": "Flat — Bootstrap",
-        "run_dir": "2026-05-06_15-47-12_p1_coarse",
-        "status": "COMPLETE",
-        "best_model": "model_2900.pt",
-        "best_iteration": 2900,
-        "best_reward": 15.61,
-        "peak_reward": 16.34,
-        "completed_at": "2026-05-07T00:56:05+08:00",
-        "local_models": {
-          "checkpoint": "models/B_custom_curriculum/p1_coarse/p1_coarse_model_2900.pt",
-          "jit_policy": "models/B_custom_curriculum/p1_coarse/p1_coarse_policy.pt"
-        },
-        "source": "legacy_phase_head_snapshot"
+      "video": "videos/p/p2_fine/"
+    },
+    {
+      "id": "p2_fine_symmetry_attempt",
+      "archived_reason": "Intermediate symmetry retraining attempt, superseded by unified pipeline restart from p2_coarse",
+      "original_status": "STOPPED",
+      "run_dir": "2026-05-15_07-07-19_p2_fine",
+      "best_model": null,
+      "best_iteration": null,
+      "best_reward": null,
+      "note": "Attempted to retrain p2_fine with joint_mirror without redoing p2_coarse. Abandoned in favor of full pipeline restart."
+    },
+    {
+      "id": "p3_fine",
+      "archived_reason": "Pipeline restart from p2_coarse invalidated all downstream phases",
+      "original_status": "COMPLETE",
+      "run_dir": "2026-05-13_04-42-53_p3_fine",
+      "best_model": "model_5300.pt",
+      "best_iteration": 5300,
+      "best_reward": 30.57,
+      "peak_reward": 31.2,
+      "time_out": 83.6,
+      "bad_orientation": 16.4,
+      "vel_error": 0.39,
+      "local_models": {
+        "checkpoint": "models/p/p3_fine/p3_fine_model_5300.pt",
+        "jit_policy": "models/p/p3_fine/p3_fine_policy.pt"
       },
-      {
-        "id": "p1_fine",
-        "phase_id": "p1",
-        "phase_name": "Flat — Bootstrap",
-        "run_dir": "2026-05-06_17-40-13_p1_fine",
-        "status": "COMPLETE",
-        "best_model": "model_2800.pt",
-        "best_iteration": 2800,
-        "best_reward": 5.54,
-        "peak_reward": 6.19,
-        "completed_at": "2026-05-07T01:44:00+08:00",
-        "local_models": {
-          "checkpoint": "models/B_custom_curriculum/p1_fine/p1_fine_model_2800.pt",
-          "jit_policy": "models/B_custom_curriculum/p1_fine/p1_fine_policy.pt"
-        },
-        "source": "legacy_phase_head_snapshot"
+      "video": "videos/p/p3_fine/20260514_1514/"
+    },
+    {
+      "id": "p4_coarse",
+      "archived_reason": "Pipeline restart from p2_coarse invalidated all downstream phases",
+      "original_status": "STOPPED",
+      "run_dir": "2026-05-13_19-46-02_p4_coarse",
+      "best_model": null,
+      "local_models": null,
+      "video": null
+    },
+    {
+      "id": "p4_fine",
+      "archived_reason": "Pipeline restart from p2_coarse invalidated all downstream phases",
+      "original_status": "STOPPED",
+      "run_dir": "2026-05-14_03-50-16_p4_fine",
+      "best_model": "model_16400.pt",
+      "best_reward": 1.26,
+      "local_models": {
+        "checkpoint": "models/p/p4_fine/p4_fine_model_16400.pt",
+        "jit_policy": "models/p/p4_fine/p4_fine_policy.pt"
       },
-      {
-        "id": "p2_coarse",
-        "phase_id": "p2",
-        "phase_name": "Flat — Velocity Tracking + Symmetry",
-        "run_dir": "2026-05-15_17-44-46_p2_coarse",
-        "status": "COMPLETE",
-        "best_model": "model_4000.pt",
-        "best_iteration": 4000,
-        "best_reward": 33.11,
-        "peak_reward": 33.11,
-        "completed_at": "2026-05-15T19:49:21",
-        "local_models": {
-          "checkpoint": "models/B_custom_curriculum/p2_coarse/p2_coarse_model_4000.pt",
-          "jit_policy": "models/B_custom_curriculum/p2_coarse/p2_coarse_policy.pt"
+      "video": "videos/p/p4_fine/"
+    },
+    {
+      "id": "p3b",
+      "archived_reason": "Deprecated phase removed from pipeline",
+      "note": "p3b intermediate terrain removed from 5-phase plan. p3 gentle sufficient.",
+      "runs": [
+        {
+          "run_dir": "2026-05-09_03-22-15_p3b_coarse",
+          "best_reward": 29.08
         },
-        "source": "legacy_phase_head_snapshot",
-        "time_out": 0.957061767578125,
-        "ep_len": 950.3800048828125,
-        "bad_ori": 0.042938232421875,
-        "vel_err": 0.370881050825119,
-        "reward": 27.586048126220703,
-        "metrics_updated_at": "2026-05-22T09:19:50.767886",
-        "metrics_source": "remote_monitor_report"
-      },
-      {
-        "id": "p2_fine_old",
-        "phase_id": "p2_fine",
-        "archived_reason": "Rollback: replaced by new p2_fine training with joint_mirror reward",
-        "run_dir": "2026-05-06_19-33-51_p2_fine",
-        "status": "COMPLETE",
-        "best_model": "model_3168.pt",
-        "best_iteration": 3168,
-        "best_reward": 48.3,
-        "peak_reward": 49.68,
-        "local_models": {
-          "checkpoint": "models/B_custom_curriculum/p2_fine/p2_fine_model_3200.pt",
-          "jit_policy": "models/B_custom_curriculum/p2_fine/p2_fine_policy.pt"
+        {
+          "run_dir": "2026-05-09_06-09-46_p3b_fine"
         },
-        "source": "legacy_phase_head_archived_runs"
-      },
-      {
-        "id": "p2_fine",
-        "phase_id": "p2",
-        "run_dir": null,
-        "status": "LOCAL_ONLY",
-        "best_model": "model_3600.pt",
-        "best_iteration": null,
-        "best_reward": null,
-        "peak_reward": null,
-        "local_models": {
-          "checkpoint": "models/B_custom_curriculum/p2_fine/p2_fine_model_3600.pt",
-          "jit_policy": "models/B_custom_curriculum/p2_fine/p2_fine_policy.pt"
+        {
+          "run_dir": "2026-05-12_00-39-49_p3b_fine_symmetry"
         },
-        "source": "local_model_scan"
-      },
-      {
-        "id": "p2_fine",
-        "phase_id": "p2",
-        "phase_name": "Flat — Velocity Tracking + Symmetry",
-        "run_dir": "2026-05-18_19-35-30_p2_fine",
-        "status": "COMPLETE",
-        "best_model": "model_4800.pt",
-        "best_iteration": 4800,
-        "best_reward": 38.21,
-        "peak_reward": 38.21,
-        "completed_at": "2026-05-15T21:49:03",
-        "local_models": {
-          "checkpoint": "models/B_custom_curriculum/p2_fine/p2_fine_model_4800.pt",
-          "jit_policy": "models/B_custom_curriculum/p2_fine/p2_fine_policy.pt"
+        {
+          "run_dir": "2026-05-13_07-05-31_p3b_coarse"
         },
-        "source": "legacy_phase_head_snapshot",
-        "time_out": 0.9719035029411316,
-        "ep_len": 980.1400146484375,
-        "bad_ori": 0.02736409567296505,
-        "vel_err": 0.3770323693752289,
-        "reward": 24.586925506591797,
-        "metrics_updated_at": "2026-05-22T09:19:53.055252",
-        "metrics_source": "remote_monitor_report"
-      },
-      {
-        "id": "p3_coarse",
-        "phase_id": "p3",
-        "phase_name": "Gentle Terrain",
-        "run_dir": "2026-05-20_06-01-49_p3_coarse",
-        "status": "ARCHIVED",
-        "archived_reason": "Config difficulty too high (reward 17.71 vs P2 Fine 38.21). Retraining from P2 Fine with reduced difficulty.",
-        "best_model": "model_6100.pt",
-        "best_iteration": 6100,
-        "best_reward": 17.71,
-        "peak_reward": 22.68,
-        "local_models": {
-          "checkpoint": "models/B_custom_curriculum/p3_coarse/p3_coarse_model_6100.pt",
-          "jit_policy": null
+        {
+          "run_dir": "2026-05-13_11-38-16_p3b_fine"
         },
-        "source": "legacy_best_models_snapshot",
-        "time_out": 0.641571044921875,
-        "ep_len": 556.3699951171875,
-        "bad_ori": 0.358428955078125,
-        "vel_err": 0.35669073462486267,
-        "reward": 15.594313621520996,
-        "metrics_updated_at": "2026-05-22T09:20:06.133032",
-        "metrics_source": "remote_monitor_report"
-      }
-    ],
-    "AMP": []
-  }
+        {
+          "run_dir": "2026-05-13_14-08-38_p3b_fine_symmetry"
+        }
+      ]
+    },
+    {
+      "id": "p2_fine_symmetry",
+      "archived_reason": "Experimental symmetry runs, superseded by unified pipeline",
+      "runs": [
+        {
+          "run_dir": "2026-05-12_08-20-23_p2_fine_symmetry"
+        },
+        {
+          "run_dir": "2026-05-12_08-25-03_p2_fine_symmetry",
+          "models": "3100->6100"
+        }
+      ]
+    }
+  ]
 }

@@ -64,7 +64,7 @@ RUN_ALIASES = {
     "2026-05-06_04-55-58_phase_p1": "phase_p1",
 }
 
-# Best model info (from best_models.json)
+# Best model info (historical snapshot before categorized summary files)
 BEST_MODELS = {
     "s1_flat": {"iter": 3861, "reward": 47.33},
     "s1_stable": {"iter": 1555, "reward": 28.93},

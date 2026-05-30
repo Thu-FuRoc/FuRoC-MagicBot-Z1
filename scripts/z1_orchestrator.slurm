@@ -14,8 +14,8 @@ export CUDA_VISIBLE_DEVICES=0,1,2,3
 source ~/miniconda3/etc/profile.d/conda.sh
 conda activate isaaclab
 
-# Resume 5-phase orchestrator from saved state (p3_fine)
+# Resume custom 5-phase orchestrator from saved state
 python -u scripts/automation/phase_orchestrator.py \
-    --plan config/pipeline/z1_5phase_plan.yaml \
+    --plan config/pipeline/z1_custom_5phase_plan.yaml \
     --num-gpus 4 \
     --poll-interval 120

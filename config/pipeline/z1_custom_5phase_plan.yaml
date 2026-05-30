@@ -397,3 +397,190 @@ phases:
         monitor:
           action_rate_threshold: -1.0
           min_iterations: 4000
+
+  - id: p4
+    name: "Stair Terrain"
+    terrain: stairs
+    env:
+      terrain_type: generator
+      commands:
+        resampling_time_range: [5.0, 8.0]
+        rel_standing_envs: 0.15
+        rel_heading_envs: 1.0
+      events:
+        interval_force_torque:
+          interval_range_s: [6.0, 9.0]
+          force_range: [-5.0, 5.0]
+          torque_range: [-1.5, 1.5]
+        reset_base:
+          velocity_range:
+            x: [-0.5, 0.5]
+            y: [-0.5, 0.5]
+            z: [-0.3, 0.3]
+            roll: [-0.3, 0.3]
+            pitch: [-0.3, 0.3]
+            yaw: [-0.3, 0.3]
+        push_robot:
+          interval_range_s: [6.0, 9.0]
+          velocity_range:
+            x: [-0.3, 0.3]
+            y: [-0.2, 0.2]
+      terrain_generator:
+        size: [8.0, 8.0]
+        border_width: 20.0
+        num_rows: 9
+        num_cols: 21
+        horizontal_scale: 0.1
+        vertical_scale: 0.005
+        slope_threshold: 0.75
+        use_cache: false
+        sub_terrains:
+          flat:
+            type: MeshPlaneTerrainCfg
+            proportion: 0.6
+          stairs:
+            type: StairsTerrainCfg
+            proportion: 0.4
+            difficulty_range: [0.0, 0.5]
+    sub_phases:
+      - id: p4_coarse
+        name: "P4 Coarse — Stair Intro"
+        max_iterations: 15000
+        env:
+          commands:
+            ranges:
+              lin_vel_x: [-0.3, 0.6]
+              lin_vel_y: [-0.3, 0.3]
+              ang_vel_z: [-0.3, 0.3]
+            limit_ranges:
+              lin_vel_x: [-0.5, 1.0]
+              lin_vel_y: [-0.5, 0.5]
+              ang_vel_z: [-0.5, 0.5]
+            resampling_time_range: [5.0, 8.0]
+            rel_standing_envs: 0.15
+          events:
+            interval_force_torque:
+              interval_range_s: [6.0, 9.0]
+              force_range: [-5.0, 5.0]
+              torque_range: [-1.5, 1.5]
+            reset_base:
+              velocity_range:
+                x: [-0.5, 0.5]
+                y: [-0.5, 0.5]
+                z: [-0.3, 0.3]
+                roll: [-0.3, 0.3]
+                pitch: [-0.3, 0.3]
+                yaw: [-0.3, 0.3]
+            push_robot:
+              interval_range_s: [6.0, 9.0]
+              velocity_range:
+                x: [-0.3, 0.3]
+                y: [-0.2, 0.2]
+          terrain_generator:
+            sub_terrains:
+              flat:
+                type: MeshPlaneTerrainCfg
+                proportion: 0.6
+              stairs:
+                type: StairsTerrainCfg
+                proportion: 0.4
+                difficulty_range: [0.0, 0.5]
+        ppo:
+          learning_rate: 3.0e-4
+          entropy_coef: 0.01
+        rewards:
+          track_lin_vel_xy: 2.0
+          track_ang_vel_z: 1.0
+          alive: 0.5
+          base_height: -8.0
+          flat_orientation_l2: -2.0
+          action_rate_l1: -0.04
+          base_linear_velocity: -2.0
+          base_angular_velocity: -0.05
+          joint_vel: -0.001
+          joint_acc: -2.5e-7
+          energy: -2e-5
+          dof_pos_limits: -5.0
+          joint_deviation_legs: -0.7
+          joint_deviation_hip_knee: -0.8
+          feet_contact_number: 0.5
+          feet_slide: -0.03
+          feet_clearance: 0.5
+          stand_still: -3.0
+          undesired_contacts: -0.3
+        monitor:
+          action_rate_threshold: -1.0
+          min_iterations: 4000
+
+      - id: p4_fine
+        name: "P4 Fine — Stair Mastery"
+        max_iterations: 20000
+        env:
+          commands:
+            ranges:
+              lin_vel_x: [-0.5, 0.8]
+              lin_vel_y: [-0.5, 0.5]
+              ang_vel_z: [-0.5, 0.5]
+            limit_ranges:
+              lin_vel_x: [-0.5, 1.0]
+              lin_vel_y: [-0.5, 0.5]
+              ang_vel_z: [-0.5, 0.5]
+            resampling_time_range: [4.0, 6.0]
+            rel_standing_envs: 0.20
+          events:
+            interval_force_torque:
+              interval_range_s: [4.0, 6.0]
+              force_range: [-8.0, 8.0]
+              torque_range: [-2.0, 2.0]
+            reset_base:
+              velocity_range:
+                x: [-0.6, 0.6]
+                y: [-0.6, 0.6]
+                z: [-0.3, 0.3]
+                roll: [-0.4, 0.4]
+                pitch: [-0.4, 0.4]
+                yaw: [-0.4, 0.4]
+            push_robot:
+              interval_range_s: [4.5, 7.0]
+              velocity_range:
+                x: [-0.5, 0.5]
+                y: [-0.3, 0.3]
+          terrain_generator:
+            sub_terrains:
+              flat:
+                type: MeshPlaneTerrainCfg
+                proportion: 0.4
+              stairs:
+                type: StairsTerrainCfg
+                proportion: 0.5
+                difficulty_range: [0.0, 0.6]
+              random_grid:
+                type: RandomGridTerrainCfg
+                proportion: 0.1
+                difficulty_range: [0.0, 0.3]
+        ppo:
+          learning_rate: 1.0e-4
+          entropy_coef: 0.008
+        rewards:
+          track_lin_vel_xy: 2.0
+          track_ang_vel_z: 1.0
+          alive: 0.3
+          base_height: -10.0
+          flat_orientation_l2: -2.5
+          action_rate_l1: -0.06
+          base_linear_velocity: -2.0
+          base_angular_velocity: -0.05
+          joint_vel: -0.001
+          joint_acc: -2.5e-7
+          energy: -2e-5
+          dof_pos_limits: -5.0
+          joint_deviation_legs: -0.7
+          joint_deviation_hip_knee: -0.8
+          feet_contact_number: 0.5
+          feet_slide: -0.05
+          feet_clearance: 0.6
+          stand_still: -3.5
+          undesired_contacts: -0.5
+        monitor:
+          action_rate_threshold: -1.0
+          min_iterations: 5000

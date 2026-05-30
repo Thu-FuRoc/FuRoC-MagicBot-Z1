@@ -25,6 +25,17 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 MJCF_DEFAULT = PROJECT_ROOT / "magicbot-z1_description" / "mjcf" / "MAGICBOTZ1.xml"
 GUI_CONTROL_FILE = Path(tempfile.gettempdir()) / "magicbot_z1_local_play_control.txt"
 EXPORT_JIT_SCRIPT = PROJECT_ROOT / "magiclab_rl_lab" / "scripts" / "export_jit.py"
+MUJOCO_MANUAL_SCRIPT = PROJECT_ROOT / "magiclab_rl_lab" / "sim2sim" / "mujoco_manual.py"
+MODEL_ROOT_CANDIDATES = [
+    PROJECT_ROOT / "models" / "B_custom_curriculum",
+    PROJECT_ROOT / "models" / "A_legged_gym",
+    PROJECT_ROOT / "models" / "p",
+]
+VIDEO_ROOT_CANDIDATES = [
+    PROJECT_ROOT / "videos" / "B_custom_curriculum",
+    PROJECT_ROOT / "videos" / "A_legged_gym",
+    PROJECT_ROOT / "videos" / "p",
+]
 
 GUI_KEY_COMMANDS = {
     "Up": ("up", "Forward +0.1"),
@@ -84,9 +95,6 @@ def find_deploy_cfg_for_phase(phase_name: str) -> Path | None:
     6. No deploy config; caller may omit --deploy_cfg because mujoco_manual.py
        can run with its built-in defaults.
     """
-    video_root = PROJECT_ROOT / "videos" / "p"
-    models_root = PROJECT_ROOT / "models" / "p"
-
     def nested_latest(root: Path) -> Path | None:
         if not root.exists():
             return None
@@ -97,17 +105,19 @@ def find_deploy_cfg_for_phase(phase_name: str) -> Path | None:
         )
         return candidates[0] if candidates else None
 
-    direct_candidates = [
-        video_root / phase_name / "params" / "deploy.yaml",
-        models_root / phase_name / "params" / "deploy.yaml",
-    ]
+    direct_candidates: list[Path] = []
+    for video_root in VIDEO_ROOT_CANDIDATES:
+        direct_candidates.append(video_root / phase_name / "params" / "deploy.yaml")
+    for models_root in MODEL_ROOT_CANDIDATES:
+        direct_candidates.append(models_root / phase_name / "params" / "deploy.yaml")
     for candidate in direct_candidates:
         if candidate.exists():
             return candidate
 
-    exact_nested = nested_latest(video_root / phase_name)
-    if exact_nested is not None:
-        return exact_nested
+    for video_root in VIDEO_ROOT_CANDIDATES:
+        exact_nested = nested_latest(video_root / phase_name)
+        if exact_nested is not None:
+            return exact_nested
 
     family = phase_family(phase_name)
     sibling_names: list[str] = []
@@ -120,6 +130,8 @@ def find_deploy_cfg_for_phase(phase_name: str) -> Path | None:
         sorted(
             {
                 path.name
+                for models_root in MODEL_ROOT_CANDIDATES
+                if models_root.exists()
                 for path in models_root.iterdir()
                 if path.is_dir() and phase_family(path.name) == family and path.name != phase_name
             }
@@ -136,9 +148,10 @@ def find_deploy_cfg_for_phase(phase_name: str) -> Path | None:
         ):
             if candidate.exists():
                 return candidate
-        sibling_nested = nested_latest(video_root / sibling)
-        if sibling_nested is not None:
-            return sibling_nested
+        for video_root in VIDEO_ROOT_CANDIDATES:
+            sibling_nested = nested_latest(video_root / sibling)
+            if sibling_nested is not None:
+                return sibling_nested
 
     return None
 
@@ -177,29 +190,30 @@ def format_policy_label(path: str | Path) -> str:
 
 def scan_presets() -> dict[str, dict[str, object]]:
     presets: dict[str, dict[str, object]] = {}
-    models_root = PROJECT_ROOT / "models" / "p"
-    video_root = PROJECT_ROOT / "videos" / "p"
-
-    if not models_root.exists():
-        return presets
-
-    for phase_dir in sorted(p for p in models_root.iterdir() if p.is_dir()):
-        policy_files = sort_policy_candidates(list(phase_dir.glob("*.pt")))
-        if not policy_files:
+    for models_root in MODEL_ROOT_CANDIDATES:
+        if not models_root.exists():
             continue
 
-        deploy_cfg = find_deploy_cfg_for_phase(phase_dir.name)
-        runtime_binding = runtime_binding_from_preset(phase_dir.name)
+        for phase_dir in sorted(p for p in models_root.iterdir() if p.is_dir()):
+            if phase_dir.name in presets:
+                continue
 
-        presets[phase_dir.name] = {
-            "mjcf": str(MJCF_DEFAULT),
-            "policy": str(policy_files[0]),
-            "policy_files": [str(path) for path in policy_files],
-            "deploy_cfg": str(deploy_cfg) if deploy_cfg is not None else "",
-            "phase": str(runtime_binding["phase"]),
-            "terrain": str(runtime_binding["terrain"]),
-            "flat": "1" if bool(runtime_binding["flat"]) else "0",
-        }
+            policy_files = sort_policy_candidates(list(phase_dir.glob("*.pt")))
+            if not policy_files:
+                continue
+
+            deploy_cfg = find_deploy_cfg_for_phase(phase_dir.name)
+            runtime_binding = runtime_binding_from_preset(phase_dir.name)
+
+            presets[phase_dir.name] = {
+                "mjcf": str(MJCF_DEFAULT),
+                "policy": str(policy_files[0]),
+                "policy_files": [str(path) for path in policy_files],
+                "deploy_cfg": str(deploy_cfg) if deploy_cfg is not None else "",
+                "phase": str(runtime_binding["phase"]),
+                "terrain": str(runtime_binding["terrain"]),
+                "flat": "1" if bool(runtime_binding["flat"]) else "0",
+            }
 
     return presets
 
@@ -656,7 +670,7 @@ class LocalPlayGui:
 
     def build_args_with_policy(self, policy_path: Path) -> list[str]:
         args = [
-            str(PROJECT_ROOT / "sim2sim" / "mujoco_manual.py"),
+            str(MUJOCO_MANUAL_SCRIPT),
             "--mjcf", str(self.resolve_input_path(self.mjcf_var.get())),
             "--policy", str(policy_path),
             "--control_file", str(GUI_CONTROL_FILE),
