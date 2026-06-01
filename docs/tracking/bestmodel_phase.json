@@ -1,13 +1,23 @@
 {
   "source": "5-phase-pipeline",
   "plan": "z1_5phase_plan.yaml",
-  "updated_at": "2026-05-30T06:47:20+00:00",
+  "updated_at": "2026-05-31T14:47:04+00:00",
   "phases": [
     {
       "phase_id": "p1",
       "phase_name": "Flat — Bootstrap",
-      "status": "COMPLETE",
-      "sub_phases": [],
+      "status": "IN_PROGRESS",
+      "sub_phases": [
+        {
+          "id": "p1_coarse",
+          "run_dir": null,
+          "best_model": null,
+          "best_iteration": null,
+          "best_reward": null,
+          "peak_reward": null,
+          "status": "PENDING"
+        }
+      ],
       "phase_best": "p1/model_3700.pt",
       "phase_best_reward": 7.26620140782109
     },
@@ -18,7 +28,7 @@
       "sub_phases": [
         {
           "id": "p2_fine",
-          "run_dir": "p2_fine",
+          "run_dir": "2026-05-18_19-35-30_p2_fine",
           "best_model": "model_4800.pt",
           "best_iteration": 4800,
           "best_reward": 38.21,
@@ -36,7 +46,7 @@
       "sub_phases": [
         {
           "id": "p3_coarse",
-          "run_dir": "p3_coarse",
+          "run_dir": "2026-05-29_17-45-26_p3_coarse",
           "best_model": "model_10700.pt",
           "best_iteration": 10700,
           "best_reward": 51.7,
@@ -45,12 +55,12 @@
         },
         {
           "id": "p3_fine",
-          "run_dir": "2026-05-30_04-23-29_p3_fine",
-          "best_model": null,
-          "best_iteration": null,
-          "best_reward": null,
-          "peak_reward": null,
-          "status": "RUNNING"
+          "run_dir": "2026-05-31_09-37-45_p3_fine",
+          "best_model": "model_24900.pt",
+          "best_iteration": 24900,
+          "best_reward": 48.54,
+          "peak_reward": 48.54,
+          "status": "STOPPED"
         }
       ],
       "phase_best": "p3_coarse/model_10700.pt",
@@ -60,7 +70,9 @@
       "phase_id": "p4",
       "phase_name": "Rough Terrain",
       "sub_phases": [],
-      "status": "PLANNED"
+      "status": "IN_PROGRESS",
+      "phase_best": "p4_coarse/model_11000.pt",
+      "phase_best_reward": 40.23948401271707
     },
     {
       "phase_id": "p5",
@@ -69,6 +81,38 @@
       "status": "PLANNED"
     }
   ],
+  "models": {
+    "custom": [
+      {
+        "id": "p3_coarse",
+        "run_dir": "2026-05-29_17-45-26_p3_coarse",
+        "best_model": "model_10700.pt",
+        "best_iteration": 10700,
+        "best_reward": 51.7,
+        "status": "COMPLETE"
+      },
+      {
+        "id": "p3_fine",
+        "run_dir": "2026-05-31_09-37-45_p3_fine",
+        "best_model": "model_24900.pt",
+        "best_iteration": 24900,
+        "best_reward": 48.54,
+        "status": "STOPPED"
+      },
+      {
+        "id": "walk_bootstrap",
+        "run_dir": "2026-05-31_18-42-54_walk_bootstrap",
+        "best_model": "model_25000.pt",
+        "best_iteration": 25000,
+        "best_reward": 50.87,
+        "status": "OVERFITTING",
+        "bad_ori": 17.28,
+        "time_out": 82.72,
+        "vel_error": 0.474,
+        "ep_len": 752.8
+      }
+    ]
+  },
   "archived_runs": [
     {
       "id": "p2_coarse_old",

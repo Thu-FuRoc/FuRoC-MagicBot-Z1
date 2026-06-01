@@ -62,6 +62,8 @@ RUN_ALIASES = {
     "2026-05-05_04-47-06_s4_flat_deploy": "s4_flat_deploy",
     "2026-05-05_13-57-30_s5_explicit_pd": "s5_explicit_pd",
     "2026-05-06_04-55-58_phase_p1": "phase_p1",
+    "2026-05-31_18-42-54_walk_bootstrap": "walk_bootstrap",
+    "2026-06-01_05-08-16_walk_refine": "walk_refine",
 }
 
 # Best model info (historical snapshot before categorized summary files)
@@ -106,14 +108,23 @@ def load_scalar(ea: EventAccumulator, tag: str) -> tuple[list[int], list[float]]
 
 
 def load_run_data(run_path: str) -> dict:
-    """Load all scalar data from a single run directory."""
+    """Load all scalar data from a single run directory.
+
+    Stores ``_step_offset`` (the raw step value of the first data point)
+    so callers can produce relative-iteration plots without mutating the
+    original step arrays.
+    """
     ea = EventAccumulator(run_path)
     ea.Reload()
     tags = ea.Tags().get("scalars", [])
-    data = {}
+    data: dict = {}
+    step_offset = 0
     for tag in tags:
         steps, values = load_scalar(ea, tag)
+        if step_offset == 0 and steps:
+            step_offset = steps[0]
         data[tag] = {"steps": steps, "values": values}
+    data["_step_offset"] = step_offset
     return data
 
 
@@ -206,6 +217,94 @@ def plot_reward_trend(data: dict, alias: str, output_dir: str):
     return path
 
 
+# ── Plot 1b: Reward trend with relative iterations ─────────────────────── #
+
+def plot_reward_trend_relative(data: dict, alias: str, output_dir: str):
+    """Same as plot_reward_trend but x-axis is relative iterations (starts at 0)."""
+    step_offset = data.get("_step_offset", 0)
+    raw_steps = data["Train/mean_reward"]["steps"]
+    steps = [s - step_offset for s in raw_steps]
+    values = data["Train/mean_reward"]["values"]
+    sv = smooth(values, window=50)
+
+    fig, (ax, ax_bar) = plt.subplots(
+        2, 1, figsize=(14, 7.5), height_ratios=[10, 1],
+        gridspec_kw={"hspace": 0.25},
+    )
+
+    # Raw + smoothed
+    ax.plot(steps, values, color="#c0c0c0", linewidth=0.4, alpha=0.5, label="Raw")
+    ax.plot(steps, sv, color="#1f77b4", linewidth=1.5, label="MA-50")
+
+    # Peak reward
+    peak_idx = int(np.argmax(sv))
+    peak_val = sv[peak_idx]
+    peak_step = steps[peak_idx]
+    ax.axvline(x=peak_step, color="orange", linestyle="--", alpha=0.7, linewidth=1.2)
+    ax.annotate(
+        f"Peak: {peak_val:.2f}\n(iter {peak_step})",
+        xy=(peak_step, peak_val),
+        xytext=(15, 5), textcoords="offset points",
+        fontsize=8, color="orange", fontweight="bold",
+        arrowprops=dict(arrowstyle="->", color="orange", lw=1),
+    )
+
+    # Best model checkpoint (offset)
+    if alias in BEST_MODELS and BEST_MODELS[alias]["iter"] is not None:
+        best_iter = BEST_MODELS[alias]["iter"] - step_offset
+        best_reward = BEST_MODELS[alias]["reward"]
+        if best_iter >= 0:
+            ax.axvline(x=best_iter, color="red", linestyle="--", alpha=0.7, linewidth=1.2)
+            ax.annotate(
+                f"Best ckpt: {best_reward:.2f}\n(iter {best_iter})",
+                xy=(best_iter, ax.get_ylim()[1] * 0.6),
+                xytext=(15, 0), textcoords="offset points",
+                fontsize=8, color="red", fontweight="bold",
+                arrowprops=dict(arrowstyle="->", color="red", lw=1),
+            )
+
+    # Current value annotation
+    current_val = sv[-1]
+    current_step = steps[-1]
+    ax.annotate(
+        f"Current: {current_val:.2f}",
+        xy=(current_step, current_val),
+        xytext=(-15, 10), textcoords="offset points",
+        fontsize=8, color="#1f77b4", fontweight="bold",
+    )
+
+    # Offset info
+    if step_offset > 0:
+        ax.text(0.02, 0.98, f"(checkpoint loaded from iter {step_offset})",
+                transform=ax.transAxes, fontsize=8, va="top", color="gray",
+                style="italic")
+
+    ax.set_ylabel("Mean Episode Reward")
+    ax.set_title(f"{alias} — Reward Trend (relative iterations)")
+    ax.legend(loc="upper right", framealpha=0.9)
+
+    def _fmt_k(x, _):
+        v = x / 1000
+        return f"{v:.1f}k" if v < 10 else f"{v:.0f}k" if v < 100 else f"{v:.0f}k"
+    ax.xaxis.set_major_formatter(ticker.FuncFormatter(_fmt_k))
+    ax.grid(True, alpha=0.3)
+
+    # Progress bar
+    ax_bar.barh(0, current_step, height=0.5, color="#2ca02c", alpha=0.6)
+    ax_bar.set_xlim(0, max(current_step * 1.05, 1000))
+    ax_bar.set_yticks([])
+    ax_bar.set_xlabel(f"Relative Iteration ({current_step:,})")
+    ax_bar.xaxis.set_major_formatter(ticker.FuncFormatter(_fmt_k))
+    ax_bar.set_title("Training Progress (this phase)", fontsize=10, pad=2)
+
+    fig.tight_layout()
+    path = os.path.join(output_dir, f"1b_reward_trend_relative_{alias}.png")
+    fig.savefig(path, dpi=150)
+    plt.close(fig)
+    print(f"  Saved: {path}")
+    return path
+
+
 # ── Plot 2: Reward decomposition ─────────────────────────────────────────── #
 
 def plot_reward_decomposition(data: dict, alias: str, output_dir: str):
@@ -255,7 +354,7 @@ def plot_reward_decomposition(data: dict, alias: str, output_dir: str):
     ax1.legend(loc="upper right", ncol=3, framealpha=0.9)
     ax1.xaxis.set_major_formatter(ticker.FuncFormatter(lambda x, _: f"{x/1000:.0f}k"))
 
-    # Bottom: curriculum
+    # Bottom: curriculum + vel_error overlay
     if "Curriculum/terrain_levels" in data:
         terrain = smooth(data["Curriculum/terrain_levels"]["values"], window=max(1, len(steps) // 200))
         ax2.plot(steps, terrain, "brown", linewidth=1.5, label="Terrain level")
@@ -263,10 +362,25 @@ def plot_reward_decomposition(data: dict, alias: str, output_dir: str):
     if "Curriculum/lin_vel_cmd_levels" in data:
         vel = smooth(data["Curriculum/lin_vel_cmd_levels"]["values"], window=max(1, len(steps) // 200))
         ax2.plot(steps, vel, "teal", linewidth=1.5, label="Velocity cmd level")
-        ax2.legend(loc="upper left")
+    if "Curriculum/ang_vel_cmd_levels" in data:
+        ang_vel = smooth(data["Curriculum/ang_vel_cmd_levels"]["values"], window=max(1, len(steps) // 200))
+        ax2.plot(steps, ang_vel, "steelblue", linewidth=1.2, alpha=0.7, label="Ang vel cmd level")
+    ax2.legend(loc="upper left", fontsize=8)
+
+    # vel_error on right y-axis
+    if "Metrics/base_velocity/error_vel_xy" in data:
+        ax2r = ax2.twinx()
+        vel_err = smooth(data["Metrics/base_velocity/error_vel_xy"]["values"],
+                         window=max(1, len(data["Metrics/base_velocity/error_vel_xy"]["values"]) // 200))
+        vel_err_steps = data["Metrics/base_velocity/error_vel_xy"]["steps"]
+        ax2r.plot(vel_err_steps[:len(vel_err)], vel_err, color="#d62728",
+                  linewidth=1.5, linestyle="--", label="vel_error_xy")
+        ax2r.set_ylabel("Velocity Error (m/s)", color="#d62728", fontsize=10)
+        ax2r.tick_params(axis="y", labelcolor="#d62728")
+        ax2r.legend(loc="upper right", fontsize=8)
 
     ax2.set_xlabel("Iteration")
-    ax2.set_title("Curriculum Progress")
+    ax2.set_title("Curriculum Progress + Velocity Tracking Error")
     ax2.xaxis.set_major_formatter(ticker.FuncFormatter(lambda x, _: f"{x/1000:.0f}k"))
 
     # Annotate best model
@@ -399,6 +513,91 @@ def plot_efficiency(data: dict, alias: str, output_dir: str):
     return path
 
 
+# ── Plot 5: Velocity tracking ─────────────────────────────────────────────── #
+
+def plot_velocity_tracking(data: dict, alias: str, output_dir: str):
+    """Plot velocity tracking error + tracking reward + curriculum."""
+    has_err = "Metrics/base_velocity/error_vel_xy" in data
+    has_yaw_err = "Metrics/base_velocity/error_vel_yaw" in data
+    has_track_lin = "Episode_Reward/track_lin_vel_xy" in data
+    has_track_ang = "Episode_Reward/track_ang_vel_z" in data
+    if not (has_err or has_track_lin):
+        print(f"  Skipped Plot 5: no velocity tracking data for {alias}")
+        return None
+
+    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(14, 9), height_ratios=[1, 1])
+
+    # Top panel: velocity errors
+    if has_err:
+        err_data = data["Metrics/base_velocity/error_vel_xy"]
+        err_steps = err_data["steps"]
+        err_vals = smooth(err_data["values"], window=max(1, len(err_data["values"]) // 200))
+        ax1.plot(err_steps[:len(err_vals)], err_vals, color="#d62728",
+                 linewidth=1.5, label="vel_error_xy")
+        ax1.axhline(y=err_vals[-1], color="#d62728", linestyle=":", alpha=0.4)
+        ax1.annotate(f"{err_vals[-1]:.3f}", xy=(err_steps[min(len(err_steps)-1, len(err_vals)-1)], err_vals[-1]),
+                     fontsize=8, color="#d62728", fontweight="bold",
+                     xytext=(5, 5), textcoords="offset points")
+    if has_yaw_err:
+        yaw_data = data["Metrics/base_velocity/error_vel_yaw"]
+        yaw_steps = yaw_data["steps"]
+        yaw_vals = smooth(yaw_data["values"], window=max(1, len(yaw_data["values"]) // 200))
+        ax1.plot(yaw_steps[:len(yaw_vals)], yaw_vals, color="#ff7f0e",
+                 linewidth=1.2, linestyle="--", label="vel_error_yaw")
+
+    ax1.set_ylabel("Velocity Error")
+    ax1.set_title(f"{alias} — Velocity Tracking Error")
+    ax1.legend(loc="upper right")
+    ax1.xaxis.set_major_formatter(ticker.FuncFormatter(lambda x, _: f"{x/1000:.0f}k"))
+    ax1.grid(True, alpha=0.3)
+
+    # Bottom panel: tracking rewards + curriculum
+    if has_track_lin:
+        track_data = data["Episode_Reward/track_lin_vel_xy"]
+        t_steps = track_data["steps"]
+        t_vals = smooth(track_data["values"], window=max(1, len(track_data["values"]) // 200))
+        ax2.plot(t_steps[:len(t_vals)], t_vals, color="#2ca02c",
+                 linewidth=1.5, label="track_lin_vel_xy (reward)")
+    if has_track_ang:
+        track_ang_data = data["Episode_Reward/track_ang_vel_z"]
+        ta_steps = track_ang_data["steps"]
+        ta_vals = smooth(track_ang_data["values"], window=max(1, len(track_ang_data["values"]) // 200))
+        ax2.plot(ta_steps[:len(ta_vals)], ta_vals, color="#17becf",
+                 linewidth=1.2, linestyle="--", label="track_ang_vel_z (reward)")
+
+    # Curriculum on right y-axis
+    if "Curriculum/lin_vel_cmd_levels" in data:
+        ax2r = ax2.twinx()
+        cv_data = data["Curriculum/lin_vel_cmd_levels"]
+        cv_steps = cv_data["steps"]
+        cv_vals = smooth(cv_data["values"], window=max(1, len(cv_data["values"]) // 200))
+        ax2r.plot(cv_steps[:len(cv_vals)], cv_vals, color="teal",
+                  linewidth=1.5, alpha=0.6, label="Vel cmd curriculum")
+        ax2r.set_ylabel("Curriculum Level", color="teal", fontsize=10)
+        ax2r.tick_params(axis="y", labelcolor="teal")
+        ax2r.legend(loc="center right", fontsize=8)
+
+    ax2.set_xlabel("Iteration")
+    ax2.set_ylabel("Tracking Reward")
+    ax2.set_title("Tracking Reward + Velocity Curriculum")
+    ax2.legend(loc="upper left", fontsize=8)
+    ax2.xaxis.set_major_formatter(ticker.FuncFormatter(lambda x, _: f"{x/1000:.0f}k"))
+    ax2.grid(True, alpha=0.3)
+
+    # Best model annotation
+    if alias in BEST_MODELS and BEST_MODELS[alias]["iter"] is not None:
+        best_iter = BEST_MODELS[alias]["iter"]
+        for a in [ax1, ax2]:
+            a.axvline(x=best_iter, color="red", linestyle="--", alpha=0.6, linewidth=1.5)
+
+    fig.tight_layout()
+    path = os.path.join(output_dir, f"5_velocity_tracking_{alias}.png")
+    fig.savefig(path, dpi=150)
+    plt.close(fig)
+    print(f"  Saved: {path}")
+    return path
+
+
 # ── Main ──────────────────────────────────────────────────────────────────── #
 
 def main():
@@ -458,9 +657,11 @@ def main():
     if focus_alias and focus_alias in all_data:
         focus_data = all_data[focus_alias]
         plot_reward_trend(focus_data, focus_alias, args.output_dir)
+        plot_reward_trend_relative(focus_data, focus_alias, args.output_dir)
         plot_reward_decomposition(focus_data, focus_alias, args.output_dir)
         plot_termination(focus_data, focus_alias, args.output_dir)
         plot_efficiency(focus_data, focus_alias, args.output_dir)
+        plot_velocity_tracking(focus_data, focus_alias, args.output_dir)
     else:
         print(f"  WARNING: focus run '{focus_alias}' not found in loaded data")
 
